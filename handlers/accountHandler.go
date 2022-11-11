@@ -102,11 +102,10 @@ func GetAccountInfo(c *fiber.Ctx) error {
 	}
 }
 
-// http://localhost:8080/revokeAccessToken?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722
+// http://localhost:8080/revokeAccessToken?access_token=f32f947d6eafe80ca5ea7cd15140bea9214606c83487a520090cd1209e98171f
 func RevokeAccessToken(c *fiber.Ctx) error {
 	accessToken := c.Query("access_token")
 
-	// TODO: middleware
 	if accessToken == "" {
 		return c.JSON(&model.Response{
 			Ok:    false,
@@ -114,14 +113,34 @@ func RevokeAccessToken(c *fiber.Ctx) error {
 		})
 	}
 
-	newAccessToken := utils.GenerateSecureToken(32)
+	if data, err := database.EntClient.Account.Query().Where(account.AccessTokenEQ(accessToken)).Only(context.Background()); err == nil {
+		newAccessToken := utils.GenerateSecureToken(32)
 
-	account := &model.Account{
-		AccessToken: newAccessToken,
-		AuthUrl:     fmt.Sprintf("http://localhost:8080/auth/%v", newAccessToken)}
+		tmp, err := data.Update().SetAccessToken(newAccessToken).SetAuthURL(fmt.Sprintf("http://localhost:8080/auth/%v", newAccessToken)).Save(context.Background())
 
-	return c.JSON(&model.Response{
-		Ok:     true,
-		Result: account,
-	})
+		if err != nil {
+			return c.Status(500).JSON(&model.Response{
+				Ok:    false,
+				Error: fmt.Sprintf("%v", err),
+			})
+		}
+
+		result := struct {
+			AccessToken string `json:"access_token"`
+			AuthURL     string `json:"auth_url"`
+		}{
+			AccessToken: tmp.AccessToken,
+			AuthURL:     tmp.AuthURL,
+		}
+
+		return c.JSON(&model.Response{
+			Ok:     true,
+			Result: result,
+		})
+	} else {
+		return c.Status(500).JSON(&model.Response{
+			Ok:    false,
+			Error: fmt.Sprintf("%v", err),
+		})
+	}
 }

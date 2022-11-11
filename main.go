@@ -37,6 +37,38 @@ func main() {
 		})
 	})
 
+	// http://localhost:8080/getAccountInfo?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&fields=[%22short_name%22,%22page_count%22]
+	app.Get("/getAccountInfo", func(c *fiber.Ctx) error {
+		accessToken := c.Query("access_token")
+		// fields (Array of String, default = [“short_name”,“author_name”,“author_url”])
+		// List of account fields to return. Available fields: short_name, author_name, author_url, auth_url, page_count.
+		fields := c.Query("fields")
+
+		var props []string
+		err := json.Unmarshal([]byte(fields), &props)
+		result := map[string]any{}
+
+		if err == nil {
+			// TODO: from DB
+			for _, p := range props {
+				result[p] = "Derek"
+			}
+		}
+
+		// TODO: middleware
+		if accessToken == "" {
+			return c.JSON(&model.Response{
+				Ok:    false,
+				Error: "Not a valid access token",
+			})
+		}
+
+		return c.JSON(&model.Response{
+			Ok:     true,
+			Result: result,
+		})
+	})
+
 	// http://localhost:8080/createPage?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&title=Sam%E5%8F%91%E9%A1%BA%E4%B8%B0ple+Page&author_name=Anonymous&content=[%7B%22tag%22:%22p%22,%22children%22:[%22Hello,+world!%22]%7D]&return_content=true
 	app.Get("/createPage", func(c *fiber.Ctx) error {
 		accessToken := c.Query("access_token")

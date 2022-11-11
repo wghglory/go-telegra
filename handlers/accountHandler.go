@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"telegra/database"
+	"telegra/ent/account"
 	"telegra/model"
 	"telegra/utils"
 
@@ -48,25 +49,16 @@ func CreateAccount(c *fiber.Ctx) error {
 	})
 }
 
-// http://localhost:8080/getAccountInfo?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&fields=[%22short_name%22,%22page_count%22]
+// right access token with default fields [“short_name”,“author_name”,“author_url”]: http://localhost:8080/getAccountInfo?access_token=f32f947d6eafe80ca5ea7cd15140bea9214606c83487a520090cd1209e98171f
+// right access token with less fields: http://localhost:8080/getAccountInfo?access_token=f32f947d6eafe80ca5ea7cd15140bea9214606c83487a520090cd1209e98171f&fields=[%22short_name%22,%22page_count%22]
+// right access token with more fields: http://localhost:8080/getAccountInfo?access_token=f32f947d6eafe80ca5ea7cd15140bea9214606c83487a520090cd1209e98171f&fields=[%22short_name%22,%22page_count%22,%22auth_url%22]
+// wrong access token: http://localhost:8080/getAccountInfo?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&fields=%5B%22short_name%22,%22page_count%22%5D
 func GetAccountInfo(c *fiber.Ctx) error {
 	accessToken := c.Query("access_token")
 	// fields (Array of String, default = [“short_name”,“author_name”,“author_url”])
 	// List of account fields to return. Available fields: short_name, author_name, author_url, auth_url, page_count.
-	fields := c.Query("fields")
+	fields := c.Query("fields", "[\"short_name\", \"author_name\", \"author_url\"]")
 
-	var props []string
-	err := json.Unmarshal([]byte(fields), &props)
-	result := map[string]any{}
-
-	if err == nil {
-		// TODO: from DB
-		for _, p := range props {
-			result[p] = "Derek"
-		}
-	}
-
-	// TODO: middleware
 	if accessToken == "" {
 		return c.JSON(&model.Response{
 			Ok:    false,
@@ -74,10 +66,40 @@ func GetAccountInfo(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(&model.Response{
-		Ok:     true,
-		Result: result,
-	})
+	if data, err := database.EntClient.Account.Query().Where(account.AccessTokenEQ(accessToken)).Only(context.Background()); err == nil {
+		var props []string // [short_name, author_name, author_url]
+		err := json.Unmarshal([]byte(fields), &props)
+		if err != nil {
+			return c.Status(500).JSON(&model.Response{
+				Ok:    false,
+				Error: "Wrong fields format",
+			})
+		}
+
+		tmp := map[string]any{}
+		result := map[string]any{}
+		tmp["short_name"] = data.ShortName
+		tmp["author_name"] = data.AuthorName
+		tmp["auth_url"] = data.AuthURL
+		tmp["author_url"] = data.AuthorURL
+		tmp["page_count"] = data.PageCount
+
+		for _, k := range props {
+			if value, ok := tmp[k]; ok {
+				result[k] = value
+			}
+		}
+
+		return c.JSON(&model.Response{
+			Ok:     true,
+			Result: result,
+		})
+	} else {
+		return c.Status(500).JSON(&model.Response{
+			Ok:    false,
+			Error: fmt.Sprintf("%v", err),
+		})
+	}
 }
 
 // http://localhost:8080/revokeAccessToken?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722

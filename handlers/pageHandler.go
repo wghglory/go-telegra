@@ -8,12 +8,13 @@ import (
 
 	"telegra/database"
 	"telegra/ent/account"
+	"telegra/ent/page"
 	"telegra/model"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-// http://localhost:8080/createPage?access_token=eec0b228c9fa28cc7dfd8dfbb84d47ad16a2d39e1ebf8c4f466d1acf9b443840&title=First+Page&author_name=Derek+Wang&content=[%7B%22tag%22:%22p%22,%22children%22:[%22Hello,+world!%22]%7D]&return_content=true
+// http://localhost:8080/createPage?access_token=eec0b228c9fa28cc7dfd8dfbb84d47ad16a2d39e1ebf8c4f466d1acf9b443840&title=First&author_name=Derek+Wang&content=[%7B%22tag%22:%22p%22,%22children%22:[%22Hello,+world!%22]%7D]&return_content=true
 func CreatePage(c *fiber.Ctx) error {
 	accessToken := c.Query("access_token")
 	title := c.Query("title")
@@ -87,41 +88,48 @@ func CreatePage(c *fiber.Ctx) error {
 
 }
 
-// http://localhost:8080/getPage/Sample-Page-12-15?return_content=true
+// http://localhost:8080/getPage/First-1668242327838759000?return_content=true
+// http://localhost:8080/getPage/First-1668242327838759000?return_content=false
 func GetPage(c *fiber.Ctx) error {
 	path := c.Params("path")
-	title := "New Title"
-	content := "[{\"tag\":\"div\",\"children\":[\"Hello, New world!\"]}]"
 
-	page := &model.Page{
-		Path:        path,
-		Title:       title,
-		AuthorName:  c.Query("author_name"),
-		Url:         fmt.Sprintf("http://localhost:8080/%v", path),
-		Description: c.Query("description"),
-		Content:     nil,
-		Views:       1,
-		CanEdit:     true,
-	}
-
-	var nodes []model.NodeElement
-	err := json.Unmarshal([]byte(content), &nodes)
-
-	if err != nil {
-		return c.JSON(&model.Response{
+	if pageEntity, err := database.EntClient.Page.Query().Where(page.PathEQ(path)).Only(context.Background()); err != nil {
+		return c.Status(500).JSON(&model.Response{
 			Ok:    false,
-			Error: "Fail to provide a valid DOM element",
+			Error: fmt.Sprintf("failed to find a page with path: %v", path),
+		})
+	} else {
+		var nodes []model.NodeElement
+		result := model.Page{
+			Path:        pageEntity.Path,
+			Url:         pageEntity.URL,
+			Title:       pageEntity.Title,
+			Description: pageEntity.Description,
+			AuthorName:  pageEntity.AuthorName,
+			ImageUrl:    pageEntity.ImageURL,
+			Views:       pageEntity.Views,
+			CanEdit:     pageEntity.CanEdit,
+		}
+
+		if c.Query("return_content") == "true" {
+			err := json.Unmarshal([]byte(pageEntity.Content), &nodes)
+
+			if err != nil {
+				return c.JSON(&model.Response{
+					Ok:    false,
+					Error: "Fail to provide a valid DOM element",
+				})
+			}
+
+			result.Content = nodes
+		}
+
+		return c.JSON(&model.Response{
+			Ok:     true,
+			Result: result,
 		})
 	}
 
-	if c.Query("return_content") == "true" {
-		page.Content = nodes
-	}
-
-	return c.JSON(&model.Response{
-		Ok:     true,
-		Result: page,
-	})
 }
 
 // http://localhost:8080/editPage/Sample-Page-12-15?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&title=Sample+Page&author_name=Derek+Wang&content=[%7B%22tag%22:%22div%22,%22children%22:[%22Hello,+New+world!%22]%7D]&return_content=true

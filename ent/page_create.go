@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"telegra/ent/account"
 	"telegra/ent/page"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -87,6 +88,25 @@ func (pc *PageCreate) SetNillableCanEdit(b *bool) *PageCreate {
 		pc.SetCanEdit(*b)
 	}
 	return pc
+}
+
+// SetAuthorID sets the "author" edge to the Account entity by ID.
+func (pc *PageCreate) SetAuthorID(id int) *PageCreate {
+	pc.mutation.SetAuthorID(id)
+	return pc
+}
+
+// SetNillableAuthorID sets the "author" edge to the Account entity by ID if the given value is not nil.
+func (pc *PageCreate) SetNillableAuthorID(id *int) *PageCreate {
+	if id != nil {
+		pc = pc.SetAuthorID(*id)
+	}
+	return pc
+}
+
+// SetAuthor sets the "author" edge to the Account entity.
+func (pc *PageCreate) SetAuthor(a *Account) *PageCreate {
+	return pc.SetAuthorID(a.ID)
 }
 
 // Mutation returns the PageMutation object of the builder.
@@ -267,6 +287,26 @@ func (pc *PageCreate) createSpec() (*Page, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.CanEdit(); ok {
 		_spec.SetField(page.FieldCanEdit, field.TypeBool, value)
 		_node.CanEdit = value
+	}
+	if nodes := pc.mutation.AuthorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   page.AuthorTable,
+			Columns: []string{page.AuthorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: account.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.account_pages = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

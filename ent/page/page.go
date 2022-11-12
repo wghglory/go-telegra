@@ -25,8 +25,17 @@ const (
 	FieldViews = "views"
 	// FieldCanEdit holds the string denoting the can_edit field in the database.
 	FieldCanEdit = "can_edit"
+	// EdgeAuthor holds the string denoting the author edge name in mutations.
+	EdgeAuthor = "author"
 	// Table holds the table name of the page in the database.
 	Table = "pages"
+	// AuthorTable is the table that holds the author relation/edge.
+	AuthorTable = "pages"
+	// AuthorInverseTable is the table name for the Account entity.
+	// It exists in this package in order to avoid circular dependency with the "account" package.
+	AuthorInverseTable = "accounts"
+	// AuthorColumn is the table column denoting the author relation/edge.
+	AuthorColumn = "account_pages"
 )
 
 // Columns holds all SQL columns for page fields.

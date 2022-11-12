@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"telegra/ent/account"
 	"telegra/ent/page"
 	"telegra/ent/predicate"
 
@@ -23,6 +24,7 @@ type PageQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.Page
+	withAuthor *AccountQuery
 	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -58,6 +60,28 @@ func (pq *PageQuery) Unique(unique bool) *PageQuery {
 func (pq *PageQuery) Order(o ...OrderFunc) *PageQuery {
 	pq.order = append(pq.order, o...)
 	return pq
+}
+
+// QueryAuthor chains the current query on the "author" edge.
+func (pq *PageQuery) QueryAuthor() *AccountQuery {
+	query := &AccountQuery{config: pq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(page.Table, page.FieldID, selector),
+			sqlgraph.To(account.Table, account.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, page.AuthorTable, page.AuthorColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Page entity from the query.
@@ -241,11 +265,23 @@ func (pq *PageQuery) Clone() *PageQuery {
 		offset:     pq.offset,
 		order:      append([]OrderFunc{}, pq.order...),
 		predicates: append([]predicate.Page{}, pq.predicates...),
+		withAuthor: pq.withAuthor.Clone(),
 		// clone intermediate query.
 		sql:    pq.sql.Clone(),
 		path:   pq.path,
 		unique: pq.unique,
 	}
+}
+
+// WithAuthor tells the query-builder to eager-load the nodes that are connected to
+// the "author" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *PageQuery) WithAuthor(opts ...func(*AccountQuery)) *PageQuery {
+	query := &AccountQuery{config: pq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withAuthor = query
+	return pq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -319,10 +355,16 @@ func (pq *PageQuery) prepareQuery(ctx context.Context) error {
 
 func (pq *PageQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Page, error) {
 	var (
-		nodes   = []*Page{}
-		withFKs = pq.withFKs
-		_spec   = pq.querySpec()
+		nodes       = []*Page{}
+		withFKs     = pq.withFKs
+		_spec       = pq.querySpec()
+		loadedTypes = [1]bool{
+			pq.withAuthor != nil,
+		}
 	)
+	if pq.withAuthor != nil {
+		withFKs = true
+	}
 	if withFKs {
 		_spec.Node.Columns = append(_spec.Node.Columns, page.ForeignKeys...)
 	}
@@ -332,6 +374,7 @@ func (pq *PageQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Page, e
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Page{config: pq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -343,7 +386,43 @@ func (pq *PageQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Page, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := pq.withAuthor; query != nil {
+		if err := pq.loadAuthor(ctx, query, nodes, nil,
+			func(n *Page, e *Account) { n.Edges.Author = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (pq *PageQuery) loadAuthor(ctx context.Context, query *AccountQuery, nodes []*Page, init func(*Page), assign func(*Page, *Account)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Page)
+	for i := range nodes {
+		if nodes[i].account_pages == nil {
+			continue
+		}
+		fk := *nodes[i].account_pages
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	query.Where(account.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "account_pages" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (pq *PageQuery) sqlCount(ctx context.Context) (int, error) {

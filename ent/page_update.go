@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"telegra/ent/account"
 	"telegra/ent/page"
 	"telegra/ent/predicate"
 
@@ -104,9 +105,34 @@ func (pu *PageUpdate) SetNillableCanEdit(b *bool) *PageUpdate {
 	return pu
 }
 
+// SetAuthorID sets the "author" edge to the Account entity by ID.
+func (pu *PageUpdate) SetAuthorID(id int) *PageUpdate {
+	pu.mutation.SetAuthorID(id)
+	return pu
+}
+
+// SetNillableAuthorID sets the "author" edge to the Account entity by ID if the given value is not nil.
+func (pu *PageUpdate) SetNillableAuthorID(id *int) *PageUpdate {
+	if id != nil {
+		pu = pu.SetAuthorID(*id)
+	}
+	return pu
+}
+
+// SetAuthor sets the "author" edge to the Account entity.
+func (pu *PageUpdate) SetAuthor(a *Account) *PageUpdate {
+	return pu.SetAuthorID(a.ID)
+}
+
 // Mutation returns the PageMutation object of the builder.
 func (pu *PageUpdate) Mutation() *PageMutation {
 	return pu.mutation
+}
+
+// ClearAuthor clears the "author" edge to the Account entity.
+func (pu *PageUpdate) ClearAuthor() *PageUpdate {
+	pu.mutation.ClearAuthor()
+	return pu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -211,6 +237,41 @@ func (pu *PageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.CanEdit(); ok {
 		_spec.SetField(page.FieldCanEdit, field.TypeBool, value)
 	}
+	if pu.mutation.AuthorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   page.AuthorTable,
+			Columns: []string{page.AuthorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: account.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.AuthorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   page.AuthorTable,
+			Columns: []string{page.AuthorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: account.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{page.Label}
@@ -307,9 +368,34 @@ func (puo *PageUpdateOne) SetNillableCanEdit(b *bool) *PageUpdateOne {
 	return puo
 }
 
+// SetAuthorID sets the "author" edge to the Account entity by ID.
+func (puo *PageUpdateOne) SetAuthorID(id int) *PageUpdateOne {
+	puo.mutation.SetAuthorID(id)
+	return puo
+}
+
+// SetNillableAuthorID sets the "author" edge to the Account entity by ID if the given value is not nil.
+func (puo *PageUpdateOne) SetNillableAuthorID(id *int) *PageUpdateOne {
+	if id != nil {
+		puo = puo.SetAuthorID(*id)
+	}
+	return puo
+}
+
+// SetAuthor sets the "author" edge to the Account entity.
+func (puo *PageUpdateOne) SetAuthor(a *Account) *PageUpdateOne {
+	return puo.SetAuthorID(a.ID)
+}
+
 // Mutation returns the PageMutation object of the builder.
 func (puo *PageUpdateOne) Mutation() *PageMutation {
 	return puo.mutation
+}
+
+// ClearAuthor clears the "author" edge to the Account entity.
+func (puo *PageUpdateOne) ClearAuthor() *PageUpdateOne {
+	puo.mutation.ClearAuthor()
+	return puo
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -443,6 +529,41 @@ func (puo *PageUpdateOne) sqlSave(ctx context.Context) (_node *Page, err error) 
 	}
 	if value, ok := puo.mutation.CanEdit(); ok {
 		_spec.SetField(page.FieldCanEdit, field.TypeBool, value)
+	}
+	if puo.mutation.AuthorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   page.AuthorTable,
+			Columns: []string{page.AuthorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: account.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.AuthorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   page.AuthorTable,
+			Columns: []string{page.AuthorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: account.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Page{config: puo.config}
 	_spec.Assign = _node.assignValues

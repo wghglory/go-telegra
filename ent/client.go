@@ -321,6 +321,22 @@ func (c *PageClient) GetX(ctx context.Context, id int) *Page {
 	return obj
 }
 
+// QueryAuthor queries the author edge of a Page.
+func (c *PageClient) QueryAuthor(pa *Page) *AccountQuery {
+	query := &AccountQuery{config: c.config}
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(page.Table, page.FieldID, id),
+			sqlgraph.To(account.Table, account.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, page.AuthorTable, page.AuthorColumn),
+		)
+		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *PageClient) Hooks() []Hook {
 	return c.hooks.Page

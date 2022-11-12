@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"telegra/ent/account"
 	"telegra/ent/page"
 
 	"entgo.io/ent/dialect/sql"
@@ -32,8 +33,33 @@ type Page struct {
 	// Views holds the value of the "views" field.
 	Views int `json:"views,omitempty"`
 	// CanEdit holds the value of the "can_edit" field.
-	CanEdit       bool `json:"can_edit,omitempty"`
+	CanEdit bool `json:"can_edit,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the PageQuery when eager-loading is set.
+	Edges         PageEdges `json:"edges"`
 	account_pages *int
+}
+
+// PageEdges holds the relations/edges for other nodes in the graph.
+type PageEdges struct {
+	// Author holds the value of the author edge.
+	Author *Account `json:"author,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// AuthorOrErr returns the Author value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e PageEdges) AuthorOrErr() (*Account, error) {
+	if e.loadedTypes[0] {
+		if e.Author == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: account.Label}
+		}
+		return e.Author, nil
+	}
+	return nil, &NotLoadedError{edge: "author"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -134,6 +160,11 @@ func (pa *Page) assignValues(columns []string, values []any) error {
 		}
 	}
 	return nil
+}
+
+// QueryAuthor queries the "author" edge of the Page entity.
+func (pa *Page) QueryAuthor() *AccountQuery {
+	return (&PageClient{config: pa.config}).QueryAuthor(pa)
 }
 
 // Update returns a builder for updating this Page.

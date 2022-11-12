@@ -4,6 +4,7 @@ package ent
 
 import (
 	"telegra/ent/account"
+	"telegra/ent/page"
 	"telegra/ent/schema"
 )
 
@@ -17,4 +18,14 @@ func init() {
 	accountDescPageCount := accountFields[5].Descriptor()
 	// account.DefaultPageCount holds the default value on creation for the page_count field.
 	account.DefaultPageCount = accountDescPageCount.Default.(int)
+	pageFields := schema.Page{}.Fields()
+	_ = pageFields
+	// pageDescViews is the schema descriptor for views field.
+	pageDescViews := pageFields[7].Descriptor()
+	// page.DefaultViews holds the default value on creation for the views field.
+	page.DefaultViews = pageDescViews.Default.(int)
+	// pageDescCanEdit is the schema descriptor for can_edit field.
+	pageDescCanEdit := pageFields[8].Descriptor()
+	// page.DefaultCanEdit holds the default value on creation for the can_edit field.
+	page.DefaultCanEdit = pageDescCanEdit.Default.(bool)
 }

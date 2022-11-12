@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"telegra/ent/account"
+	"telegra/ent/page"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -32,6 +33,7 @@ type OrderFunc func(*sql.Selector)
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
 		account.Table: account.ValidColumn,
+		page.Table:    page.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

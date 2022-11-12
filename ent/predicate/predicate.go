@@ -8,3 +8,6 @@ import (
 
 // Account is the predicate function for account builders.
 type Account func(*sql.Selector)
+
+// Page is the predicate function for page builders.
+type Page func(*sql.Selector)

@@ -24,7 +24,7 @@ func CreatePage(c *fiber.Ctx) error {
 	if accessToken == "" {
 		return c.JSON(&model.Response{
 			Ok:    false,
-			Error: "Not a valid access token",
+			Error: "Please provide a valid access token",
 		})
 	}
 
@@ -132,22 +132,93 @@ func GetPage(c *fiber.Ctx) error {
 
 }
 
-// http://localhost:8080/editPage/Sample-Page-12-15?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&title=Sample+Page&author_name=Derek+Wang&content=[%7B%22tag%22:%22div%22,%22children%22:[%22Hello,+New+world!%22]%7D]&return_content=true
-// http://localhost:8080/editPage/Sample-Page-12-15?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&title=Sample+Page&author_name=Derek+Wang&content=[%7B%22tag%22:%22div%22,%22children%22:[%22Hello,+New+world!%22]%7D]&return_content=false
+// Not a valid path: http://localhost:8080/editPage/Sample-Page-12-15?access_token=eec0b228c9fa28cc7dfd8dfbb84d47ad16a2d39e1ebf8c4f466d1acf9b443840&title=Sample+Page&author_name=Derek+Wang&content=[%7B%22tag%22:%22div%22,%22children%22:[%22Hello,+New+world!%22]%7D]&return_content=true
+// valid but not content: http://localhost:8080/editPage/First-1668242327838759000?access_token=eec0b228c9fa28cc7dfd8dfbb84d47ad16a2d39e1ebf8c4f466d1acf9b443840&title=Sample+Page&author_name=Derek+Wang&content=[%7B%22tag%22:%22div%22,%22children%22:[%22Hello,+New+world!%22]%7D]
+// valid with content: http://localhost:8080/editPage/First-1668242327838759000?access_token=eec0b228c9fa28cc7dfd8dfbb84d47ad16a2d39e1ebf8c4f466d1acf9b443840&title=Sample+Page&author_name=Derek+Wang&content=[%7B%22tag%22:%22div%22,%22children%22:[%22Hello,+New+world!%22]%7D]&return_content=true
 func EditPage(c *fiber.Ctx) error {
 	path := c.Params("path")
 	accessToken := c.Query("access_token")
 	title := c.Query("title")
 	content := c.Query("content")
+	description := c.Query("description")
+	authorName := c.Query("author_name")
 
-	return pageHandler(c, accessToken, path, title, content)
+	if accessToken == "" {
+		return c.JSON(&model.Response{
+			Ok:    false,
+			Error: "Please provide a valid access token",
+		})
+	}
+
+	if _, err := database.EntClient.Account.Query().Where(account.AccessTokenEQ(accessToken)).Only(context.Background()); err == nil {
+
+		pageEntity, err := database.EntClient.Page.Query().Where(page.PathEQ(path)).Only(context.Background())
+
+		if err != nil {
+			return c.JSON(&model.Response{
+				Ok:    false,
+				Error: "Cannot find the path",
+			})
+		}
+
+		var nodes []model.NodeElement
+		if err := json.Unmarshal([]byte(content), &nodes); err != nil {
+			return c.JSON(&model.Response{
+				Ok:    false,
+				Error: "Fail to provide a valid DOM element",
+			})
+		}
+
+		pageEntity, err = pageEntity.
+			Update().
+			SetTitle(title).
+			SetAuthorName(authorName).
+			SetDescription(description).
+			SetContent(content).
+			SetViews(pageEntity.Views + 1).
+			SetCanEdit(true).
+			Save(context.Background())
+
+		if err != nil {
+			return c.Status(500).JSON(&model.Response{
+				Ok:    false,
+				Error: fmt.Sprintf("failed to update a page with path: %v", path),
+			})
+		}
+
+		page := &model.Page{
+			Path:        pageEntity.Path,
+			Title:       pageEntity.Title,
+			AuthorName:  pageEntity.AuthorName,
+			Url:         pageEntity.URL,
+			Description: pageEntity.Description,
+			Content:     nil,
+			Views:       pageEntity.Views,
+			CanEdit:     pageEntity.CanEdit,
+		}
+
+		if c.Query("return_content") == "true" {
+			page.Content = nodes
+		}
+
+		return c.JSON(&model.Response{
+			Ok:     true,
+			Result: page,
+		})
+	} else {
+		return c.Status(500).JSON(&model.Response{
+			Ok:    false,
+			Error: fmt.Sprintf("%v", err),
+		})
+	}
+
 }
 
 func pageHandler(c *fiber.Ctx, accessToken string, path string, title string, content string) error {
 	if accessToken == "" {
 		return c.JSON(&model.Response{
 			Ok:    false,
-			Error: "Not a valid access token",
+			Error: "Please provide a valid access token",
 		})
 	}
 

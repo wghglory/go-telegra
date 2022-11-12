@@ -62,7 +62,7 @@ func GetAccountInfo(c *fiber.Ctx) error {
 	if accessToken == "" {
 		return c.JSON(&model.Response{
 			Ok:    false,
-			Error: "Not a valid access token",
+			Error: "Please provide a valid access token",
 		})
 	}
 
@@ -109,7 +109,7 @@ func RevokeAccessToken(c *fiber.Ctx) error {
 	if accessToken == "" {
 		return c.JSON(&model.Response{
 			Ok:    false,
-			Error: "Not a valid access token",
+			Error: "Please provide a valid access token",
 		})
 	}
 

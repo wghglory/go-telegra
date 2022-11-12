@@ -32,7 +32,8 @@ type Page struct {
 	// Views holds the value of the "views" field.
 	Views int `json:"views,omitempty"`
 	// CanEdit holds the value of the "can_edit" field.
-	CanEdit bool `json:"can_edit,omitempty"`
+	CanEdit       bool `json:"can_edit,omitempty"`
+	account_pages *int
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -46,6 +47,8 @@ func (*Page) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case page.FieldPath, page.FieldURL, page.FieldTitle, page.FieldDescription, page.FieldAuthorName, page.FieldImageURL, page.FieldContent:
 			values[i] = new(sql.NullString)
+		case page.ForeignKeys[0]: // account_pages
+			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Page", columns[i])
 		}
@@ -120,6 +123,13 @@ func (pa *Page) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field can_edit", values[i])
 			} else if value.Valid {
 				pa.CanEdit = value.Bool
+			}
+		case page.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field account_pages", value)
+			} else if value.Valid {
+				pa.account_pages = new(int)
+				*pa.account_pages = int(value.Int64)
 			}
 		}
 	}

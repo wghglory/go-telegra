@@ -41,6 +41,9 @@ type AccountMutation struct {
 	page_count    *int
 	addpage_count *int
 	clearedFields map[string]struct{}
+	pages         map[int]struct{}
+	removedpages  map[int]struct{}
+	clearedpages  bool
 	done          bool
 	oldValue      func(context.Context) (*Account, error)
 	predicates    []predicate.Account
@@ -380,6 +383,60 @@ func (m *AccountMutation) ResetPageCount() {
 	m.addpage_count = nil
 }
 
+// AddPageIDs adds the "pages" edge to the Page entity by ids.
+func (m *AccountMutation) AddPageIDs(ids ...int) {
+	if m.pages == nil {
+		m.pages = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.pages[ids[i]] = struct{}{}
+	}
+}
+
+// ClearPages clears the "pages" edge to the Page entity.
+func (m *AccountMutation) ClearPages() {
+	m.clearedpages = true
+}
+
+// PagesCleared reports if the "pages" edge to the Page entity was cleared.
+func (m *AccountMutation) PagesCleared() bool {
+	return m.clearedpages
+}
+
+// RemovePageIDs removes the "pages" edge to the Page entity by IDs.
+func (m *AccountMutation) RemovePageIDs(ids ...int) {
+	if m.removedpages == nil {
+		m.removedpages = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.pages, ids[i])
+		m.removedpages[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedPages returns the removed IDs of the "pages" edge to the Page entity.
+func (m *AccountMutation) RemovedPagesIDs() (ids []int) {
+	for id := range m.removedpages {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// PagesIDs returns the "pages" edge IDs in the mutation.
+func (m *AccountMutation) PagesIDs() (ids []int) {
+	for id := range m.pages {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetPages resets all changes to the "pages" edge.
+func (m *AccountMutation) ResetPages() {
+	m.pages = nil
+	m.clearedpages = false
+	m.removedpages = nil
+}
+
 // Where appends a list predicates to the AccountMutation builder.
 func (m *AccountMutation) Where(ps ...predicate.Account) {
 	m.predicates = append(m.predicates, ps...)
@@ -598,49 +655,85 @@ func (m *AccountMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *AccountMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.pages != nil {
+		edges = append(edges, account.EdgePages)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *AccountMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case account.EdgePages:
+		ids := make([]ent.Value, 0, len(m.pages))
+		for id := range m.pages {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *AccountMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.removedpages != nil {
+		edges = append(edges, account.EdgePages)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *AccountMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case account.EdgePages:
+		ids := make([]ent.Value, 0, len(m.removedpages))
+		for id := range m.removedpages {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *AccountMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedpages {
+		edges = append(edges, account.EdgePages)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *AccountMutation) EdgeCleared(name string) bool {
+	switch name {
+	case account.EdgePages:
+		return m.clearedpages
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *AccountMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Account unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *AccountMutation) ResetEdge(name string) error {
+	switch name {
+	case account.EdgePages:
+		m.ResetPages()
+		return nil
+	}
 	return fmt.Errorf("unknown Account edge %s", name)
 }
 

@@ -6,6 +6,7 @@ import (
 	"telegra/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -677,6 +678,34 @@ func PageCountLT(v int) predicate.Account {
 func PageCountLTE(v int) predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldPageCount), v))
+	})
+}
+
+// HasPages applies the HasEdge predicate on the "pages" edge.
+func HasPages() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(PagesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PagesTable, PagesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPagesWith applies the HasEdge predicate on the "pages" edge with a given conditions (other predicates).
+func HasPagesWith(preds ...predicate.Page) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(PagesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PagesTable, PagesColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 

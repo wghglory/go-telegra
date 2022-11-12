@@ -36,12 +36,21 @@ var (
 		{Name: "content", Type: field.TypeString},
 		{Name: "views", Type: field.TypeInt, Default: 0},
 		{Name: "can_edit", Type: field.TypeBool, Default: false},
+		{Name: "account_pages", Type: field.TypeInt, Nullable: true},
 	}
 	// PagesTable holds the schema information for the "pages" table.
 	PagesTable = &schema.Table{
 		Name:       "pages",
 		Columns:    PagesColumns,
 		PrimaryKey: []*schema.Column{PagesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "pages_accounts_pages",
+				Columns:    []*schema.Column{PagesColumns[10]},
+				RefColumns: []*schema.Column{AccountsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
@@ -51,4 +60,5 @@ var (
 )
 
 func init() {
+	PagesTable.ForeignKeys[0].RefTable = AccountsTable
 }

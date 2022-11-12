@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"telegra/ent/account"
+	"telegra/ent/page"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,6 +62,21 @@ func (ac *AccountCreate) SetNillablePageCount(i *int) *AccountCreate {
 		ac.SetPageCount(*i)
 	}
 	return ac
+}
+
+// AddPageIDs adds the "pages" edge to the Page entity by IDs.
+func (ac *AccountCreate) AddPageIDs(ids ...int) *AccountCreate {
+	ac.mutation.AddPageIDs(ids...)
+	return ac
+}
+
+// AddPages adds the "pages" edges to the Page entity.
+func (ac *AccountCreate) AddPages(p ...*Page) *AccountCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return ac.AddPageIDs(ids...)
 }
 
 // Mutation returns the AccountMutation object of the builder.
@@ -216,6 +232,25 @@ func (ac *AccountCreate) createSpec() (*Account, *sqlgraph.CreateSpec) {
 	if value, ok := ac.mutation.PageCount(); ok {
 		_spec.SetField(account.FieldPageCount, field.TypeInt, value)
 		_node.PageCount = value
+	}
+	if nodes := ac.mutation.PagesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   account.PagesTable,
+			Columns: []string{account.PagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: page.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

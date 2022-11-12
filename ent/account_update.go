@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"telegra/ent/account"
+	"telegra/ent/page"
 	"telegra/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
@@ -78,9 +79,45 @@ func (au *AccountUpdate) AddPageCount(i int) *AccountUpdate {
 	return au
 }
 
+// AddPageIDs adds the "pages" edge to the Page entity by IDs.
+func (au *AccountUpdate) AddPageIDs(ids ...int) *AccountUpdate {
+	au.mutation.AddPageIDs(ids...)
+	return au
+}
+
+// AddPages adds the "pages" edges to the Page entity.
+func (au *AccountUpdate) AddPages(p ...*Page) *AccountUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return au.AddPageIDs(ids...)
+}
+
 // Mutation returns the AccountMutation object of the builder.
 func (au *AccountUpdate) Mutation() *AccountMutation {
 	return au.mutation
+}
+
+// ClearPages clears all "pages" edges to the Page entity.
+func (au *AccountUpdate) ClearPages() *AccountUpdate {
+	au.mutation.ClearPages()
+	return au
+}
+
+// RemovePageIDs removes the "pages" edge to Page entities by IDs.
+func (au *AccountUpdate) RemovePageIDs(ids ...int) *AccountUpdate {
+	au.mutation.RemovePageIDs(ids...)
+	return au
+}
+
+// RemovePages removes "pages" edges to Page entities.
+func (au *AccountUpdate) RemovePages(p ...*Page) *AccountUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return au.RemovePageIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -176,6 +213,60 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := au.mutation.AddedPageCount(); ok {
 		_spec.AddField(account.FieldPageCount, field.TypeInt, value)
 	}
+	if au.mutation.PagesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   account.PagesTable,
+			Columns: []string{account.PagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: page.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.RemovedPagesIDs(); len(nodes) > 0 && !au.mutation.PagesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   account.PagesTable,
+			Columns: []string{account.PagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: page.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.PagesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   account.PagesTable,
+			Columns: []string{account.PagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: page.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, au.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{account.Label}
@@ -246,9 +337,45 @@ func (auo *AccountUpdateOne) AddPageCount(i int) *AccountUpdateOne {
 	return auo
 }
 
+// AddPageIDs adds the "pages" edge to the Page entity by IDs.
+func (auo *AccountUpdateOne) AddPageIDs(ids ...int) *AccountUpdateOne {
+	auo.mutation.AddPageIDs(ids...)
+	return auo
+}
+
+// AddPages adds the "pages" edges to the Page entity.
+func (auo *AccountUpdateOne) AddPages(p ...*Page) *AccountUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return auo.AddPageIDs(ids...)
+}
+
 // Mutation returns the AccountMutation object of the builder.
 func (auo *AccountUpdateOne) Mutation() *AccountMutation {
 	return auo.mutation
+}
+
+// ClearPages clears all "pages" edges to the Page entity.
+func (auo *AccountUpdateOne) ClearPages() *AccountUpdateOne {
+	auo.mutation.ClearPages()
+	return auo
+}
+
+// RemovePageIDs removes the "pages" edge to Page entities by IDs.
+func (auo *AccountUpdateOne) RemovePageIDs(ids ...int) *AccountUpdateOne {
+	auo.mutation.RemovePageIDs(ids...)
+	return auo
+}
+
+// RemovePages removes "pages" edges to Page entities.
+func (auo *AccountUpdateOne) RemovePages(p ...*Page) *AccountUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return auo.RemovePageIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -373,6 +500,60 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 	}
 	if value, ok := auo.mutation.AddedPageCount(); ok {
 		_spec.AddField(account.FieldPageCount, field.TypeInt, value)
+	}
+	if auo.mutation.PagesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   account.PagesTable,
+			Columns: []string{account.PagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: page.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.RemovedPagesIDs(); len(nodes) > 0 && !auo.mutation.PagesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   account.PagesTable,
+			Columns: []string{account.PagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: page.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.PagesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   account.PagesTable,
+			Columns: []string{account.PagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: page.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Account{config: auo.config}
 	_spec.Assign = _node.assignValues

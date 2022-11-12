@@ -19,8 +19,17 @@ const (
 	FieldAuthURL = "auth_url"
 	// FieldPageCount holds the string denoting the page_count field in the database.
 	FieldPageCount = "page_count"
+	// EdgePages holds the string denoting the pages edge name in mutations.
+	EdgePages = "pages"
 	// Table holds the table name of the account in the database.
 	Table = "accounts"
+	// PagesTable is the table that holds the pages relation/edge.
+	PagesTable = "pages"
+	// PagesInverseTable is the table name for the Page entity.
+	// It exists in this package in order to avoid circular dependency with the "page" package.
+	PagesInverseTable = "pages"
+	// PagesColumn is the table column denoting the pages relation/edge.
+	PagesColumn = "account_pages"
 )
 
 // Columns holds all SQL columns for account fields.

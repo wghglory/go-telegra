@@ -27,6 +27,27 @@ type Account struct {
 	AuthURL string `json:"auth_url,omitempty"`
 	// PageCount holds the value of the "page_count" field.
 	PageCount int `json:"page_count,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the AccountQuery when eager-loading is set.
+	Edges AccountEdges `json:"edges"`
+}
+
+// AccountEdges holds the relations/edges for other nodes in the graph.
+type AccountEdges struct {
+	// Pages holds the value of the pages edge.
+	Pages []*Page `json:"pages,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// PagesOrErr returns the Pages value or an error if the edge
+// was not loaded in eager-loading.
+func (e AccountEdges) PagesOrErr() ([]*Page, error) {
+	if e.loadedTypes[0] {
+		return e.Pages, nil
+	}
+	return nil, &NotLoadedError{edge: "pages"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -98,6 +119,11 @@ func (a *Account) assignValues(columns []string, values []any) error {
 		}
 	}
 	return nil
+}
+
+// QueryPages queries the "pages" edge of the Account entity.
+func (a *Account) QueryPages() *PageQuery {
+	return (&AccountClient{config: a.config}).QueryPages(a)
 }
 
 // Update returns a builder for updating this Account.

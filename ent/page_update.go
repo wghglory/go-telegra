@@ -52,6 +52,20 @@ func (pu *PageUpdate) SetDescription(s string) *PageUpdate {
 	return pu
 }
 
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (pu *PageUpdate) SetNillableDescription(s *string) *PageUpdate {
+	if s != nil {
+		pu.SetDescription(*s)
+	}
+	return pu
+}
+
+// ClearDescription clears the value of the "description" field.
+func (pu *PageUpdate) ClearDescription() *PageUpdate {
+	pu.mutation.ClearDescription()
+	return pu
+}
+
 // SetAuthorName sets the "author_name" field.
 func (pu *PageUpdate) SetAuthorName(s string) *PageUpdate {
 	pu.mutation.SetAuthorName(s)
@@ -64,9 +78,37 @@ func (pu *PageUpdate) SetImageURL(s string) *PageUpdate {
 	return pu
 }
 
+// SetNillableImageURL sets the "image_url" field if the given value is not nil.
+func (pu *PageUpdate) SetNillableImageURL(s *string) *PageUpdate {
+	if s != nil {
+		pu.SetImageURL(*s)
+	}
+	return pu
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (pu *PageUpdate) ClearImageURL() *PageUpdate {
+	pu.mutation.ClearImageURL()
+	return pu
+}
+
 // SetContent sets the "content" field.
 func (pu *PageUpdate) SetContent(s string) *PageUpdate {
 	pu.mutation.SetContent(s)
+	return pu
+}
+
+// SetNillableContent sets the "content" field if the given value is not nil.
+func (pu *PageUpdate) SetNillableContent(s *string) *PageUpdate {
+	if s != nil {
+		pu.SetContent(*s)
+	}
+	return pu
+}
+
+// ClearContent clears the value of the "content" field.
+func (pu *PageUpdate) ClearContent() *PageUpdate {
+	pu.mutation.ClearContent()
 	return pu
 }
 
@@ -219,14 +261,23 @@ func (pu *PageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.Description(); ok {
 		_spec.SetField(page.FieldDescription, field.TypeString, value)
 	}
+	if pu.mutation.DescriptionCleared() {
+		_spec.ClearField(page.FieldDescription, field.TypeString)
+	}
 	if value, ok := pu.mutation.AuthorName(); ok {
 		_spec.SetField(page.FieldAuthorName, field.TypeString, value)
 	}
 	if value, ok := pu.mutation.ImageURL(); ok {
 		_spec.SetField(page.FieldImageURL, field.TypeString, value)
 	}
+	if pu.mutation.ImageURLCleared() {
+		_spec.ClearField(page.FieldImageURL, field.TypeString)
+	}
 	if value, ok := pu.mutation.Content(); ok {
 		_spec.SetField(page.FieldContent, field.TypeString, value)
+	}
+	if pu.mutation.ContentCleared() {
+		_spec.ClearField(page.FieldContent, field.TypeString)
 	}
 	if value, ok := pu.mutation.Views(); ok {
 		_spec.SetField(page.FieldViews, field.TypeInt, value)
@@ -315,6 +366,20 @@ func (puo *PageUpdateOne) SetDescription(s string) *PageUpdateOne {
 	return puo
 }
 
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (puo *PageUpdateOne) SetNillableDescription(s *string) *PageUpdateOne {
+	if s != nil {
+		puo.SetDescription(*s)
+	}
+	return puo
+}
+
+// ClearDescription clears the value of the "description" field.
+func (puo *PageUpdateOne) ClearDescription() *PageUpdateOne {
+	puo.mutation.ClearDescription()
+	return puo
+}
+
 // SetAuthorName sets the "author_name" field.
 func (puo *PageUpdateOne) SetAuthorName(s string) *PageUpdateOne {
 	puo.mutation.SetAuthorName(s)
@@ -327,9 +392,37 @@ func (puo *PageUpdateOne) SetImageURL(s string) *PageUpdateOne {
 	return puo
 }
 
+// SetNillableImageURL sets the "image_url" field if the given value is not nil.
+func (puo *PageUpdateOne) SetNillableImageURL(s *string) *PageUpdateOne {
+	if s != nil {
+		puo.SetImageURL(*s)
+	}
+	return puo
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (puo *PageUpdateOne) ClearImageURL() *PageUpdateOne {
+	puo.mutation.ClearImageURL()
+	return puo
+}
+
 // SetContent sets the "content" field.
 func (puo *PageUpdateOne) SetContent(s string) *PageUpdateOne {
 	puo.mutation.SetContent(s)
+	return puo
+}
+
+// SetNillableContent sets the "content" field if the given value is not nil.
+func (puo *PageUpdateOne) SetNillableContent(s *string) *PageUpdateOne {
+	if s != nil {
+		puo.SetContent(*s)
+	}
+	return puo
+}
+
+// ClearContent clears the value of the "content" field.
+func (puo *PageUpdateOne) ClearContent() *PageUpdateOne {
+	puo.mutation.ClearContent()
 	return puo
 }
 
@@ -512,14 +605,23 @@ func (puo *PageUpdateOne) sqlSave(ctx context.Context) (_node *Page, err error) 
 	if value, ok := puo.mutation.Description(); ok {
 		_spec.SetField(page.FieldDescription, field.TypeString, value)
 	}
+	if puo.mutation.DescriptionCleared() {
+		_spec.ClearField(page.FieldDescription, field.TypeString)
+	}
 	if value, ok := puo.mutation.AuthorName(); ok {
 		_spec.SetField(page.FieldAuthorName, field.TypeString, value)
 	}
 	if value, ok := puo.mutation.ImageURL(); ok {
 		_spec.SetField(page.FieldImageURL, field.TypeString, value)
 	}
+	if puo.mutation.ImageURLCleared() {
+		_spec.ClearField(page.FieldImageURL, field.TypeString)
+	}
 	if value, ok := puo.mutation.Content(); ok {
 		_spec.SetField(page.FieldContent, field.TypeString, value)
+	}
+	if puo.mutation.ContentCleared() {
+		_spec.ClearField(page.FieldContent, field.TypeString)
 	}
 	if value, ok := puo.mutation.Views(); ok {
 		_spec.SetField(page.FieldViews, field.TypeInt, value)

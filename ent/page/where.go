@@ -525,6 +525,20 @@ func DescriptionHasSuffix(v string) predicate.Page {
 	})
 }
 
+// DescriptionIsNil applies the IsNil predicate on the "description" field.
+func DescriptionIsNil() predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldDescription)))
+	})
+}
+
+// DescriptionNotNil applies the NotNil predicate on the "description" field.
+func DescriptionNotNil() predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldDescription)))
+	})
+}
+
 // DescriptionEqualFold applies the EqualFold predicate on the "description" field.
 func DescriptionEqualFold(v string) predicate.Page {
 	return predicate.Page(func(s *sql.Selector) {
@@ -723,6 +737,20 @@ func ImageURLHasSuffix(v string) predicate.Page {
 	})
 }
 
+// ImageURLIsNil applies the IsNil predicate on the "image_url" field.
+func ImageURLIsNil() predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldImageURL)))
+	})
+}
+
+// ImageURLNotNil applies the NotNil predicate on the "image_url" field.
+func ImageURLNotNil() predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldImageURL)))
+	})
+}
+
 // ImageURLEqualFold applies the EqualFold predicate on the "image_url" field.
 func ImageURLEqualFold(v string) predicate.Page {
 	return predicate.Page(func(s *sql.Selector) {
@@ -819,6 +847,20 @@ func ContentHasPrefix(v string) predicate.Page {
 func ContentHasSuffix(v string) predicate.Page {
 	return predicate.Page(func(s *sql.Selector) {
 		s.Where(sql.HasSuffix(s.C(FieldContent), v))
+	})
+}
+
+// ContentIsNil applies the IsNil predicate on the "content" field.
+func ContentIsNil() predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldContent)))
+	})
+}
+
+// ContentNotNil applies the NotNil predicate on the "content" field.
+func ContentNotNil() predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldContent)))
 	})
 }
 

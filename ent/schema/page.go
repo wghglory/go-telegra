@@ -17,10 +17,10 @@ func (Page) Fields() []ent.Field {
 		field.String("path"),
 		field.String("url"),
 		field.String("title"),
-		field.String("description"),
+		field.String("description").Optional(),
 		field.String("author_name"),
-		field.String("image_url"),
-		field.String("content"),
+		field.String("image_url").Optional(),
+		field.String("content").Optional(),
 		field.Int("views").Default(0),
 		field.Bool("can_edit").Default(false),
 	}

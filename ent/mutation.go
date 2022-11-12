@@ -998,9 +998,22 @@ func (m *PageMutation) OldDescription(ctx context.Context) (v string, err error)
 	return oldValue.Description, nil
 }
 
+// ClearDescription clears the value of the "description" field.
+func (m *PageMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[page.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *PageMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[page.FieldDescription]
+	return ok
+}
+
 // ResetDescription resets all changes to the "description" field.
 func (m *PageMutation) ResetDescription() {
 	m.description = nil
+	delete(m.clearedFields, page.FieldDescription)
 }
 
 // SetAuthorName sets the "author_name" field.
@@ -1070,9 +1083,22 @@ func (m *PageMutation) OldImageURL(ctx context.Context) (v string, err error) {
 	return oldValue.ImageURL, nil
 }
 
+// ClearImageURL clears the value of the "image_url" field.
+func (m *PageMutation) ClearImageURL() {
+	m.image_url = nil
+	m.clearedFields[page.FieldImageURL] = struct{}{}
+}
+
+// ImageURLCleared returns if the "image_url" field was cleared in this mutation.
+func (m *PageMutation) ImageURLCleared() bool {
+	_, ok := m.clearedFields[page.FieldImageURL]
+	return ok
+}
+
 // ResetImageURL resets all changes to the "image_url" field.
 func (m *PageMutation) ResetImageURL() {
 	m.image_url = nil
+	delete(m.clearedFields, page.FieldImageURL)
 }
 
 // SetContent sets the "content" field.
@@ -1106,9 +1132,22 @@ func (m *PageMutation) OldContent(ctx context.Context) (v string, err error) {
 	return oldValue.Content, nil
 }
 
+// ClearContent clears the value of the "content" field.
+func (m *PageMutation) ClearContent() {
+	m.content = nil
+	m.clearedFields[page.FieldContent] = struct{}{}
+}
+
+// ContentCleared returns if the "content" field was cleared in this mutation.
+func (m *PageMutation) ContentCleared() bool {
+	_, ok := m.clearedFields[page.FieldContent]
+	return ok
+}
+
 // ResetContent resets all changes to the "content" field.
 func (m *PageMutation) ResetContent() {
 	m.content = nil
+	delete(m.clearedFields, page.FieldContent)
 }
 
 // SetViews sets the "views" field.
@@ -1458,7 +1497,17 @@ func (m *PageMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *PageMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(page.FieldDescription) {
+		fields = append(fields, page.FieldDescription)
+	}
+	if m.FieldCleared(page.FieldImageURL) {
+		fields = append(fields, page.FieldImageURL)
+	}
+	if m.FieldCleared(page.FieldContent) {
+		fields = append(fields, page.FieldContent)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -1471,6 +1520,17 @@ func (m *PageMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *PageMutation) ClearField(name string) error {
+	switch name {
+	case page.FieldDescription:
+		m.ClearDescription()
+		return nil
+	case page.FieldImageURL:
+		m.ClearImageURL()
+		return nil
+	case page.FieldContent:
+		m.ClearContent()
+		return nil
+	}
 	return fmt.Errorf("unknown Page nullable field %s", name)
 }
 

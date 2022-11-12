@@ -44,6 +44,14 @@ func (pc *PageCreate) SetDescription(s string) *PageCreate {
 	return pc
 }
 
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (pc *PageCreate) SetNillableDescription(s *string) *PageCreate {
+	if s != nil {
+		pc.SetDescription(*s)
+	}
+	return pc
+}
+
 // SetAuthorName sets the "author_name" field.
 func (pc *PageCreate) SetAuthorName(s string) *PageCreate {
 	pc.mutation.SetAuthorName(s)
@@ -56,9 +64,25 @@ func (pc *PageCreate) SetImageURL(s string) *PageCreate {
 	return pc
 }
 
+// SetNillableImageURL sets the "image_url" field if the given value is not nil.
+func (pc *PageCreate) SetNillableImageURL(s *string) *PageCreate {
+	if s != nil {
+		pc.SetImageURL(*s)
+	}
+	return pc
+}
+
 // SetContent sets the "content" field.
 func (pc *PageCreate) SetContent(s string) *PageCreate {
 	pc.mutation.SetContent(s)
+	return pc
+}
+
+// SetNillableContent sets the "content" field if the given value is not nil.
+func (pc *PageCreate) SetNillableContent(s *string) *PageCreate {
+	if s != nil {
+		pc.SetContent(*s)
+	}
 	return pc
 }
 
@@ -207,17 +231,8 @@ func (pc *PageCreate) check() error {
 	if _, ok := pc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Page.title"`)}
 	}
-	if _, ok := pc.mutation.Description(); !ok {
-		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Page.description"`)}
-	}
 	if _, ok := pc.mutation.AuthorName(); !ok {
 		return &ValidationError{Name: "author_name", err: errors.New(`ent: missing required field "Page.author_name"`)}
-	}
-	if _, ok := pc.mutation.ImageURL(); !ok {
-		return &ValidationError{Name: "image_url", err: errors.New(`ent: missing required field "Page.image_url"`)}
-	}
-	if _, ok := pc.mutation.Content(); !ok {
-		return &ValidationError{Name: "content", err: errors.New(`ent: missing required field "Page.content"`)}
 	}
 	if _, ok := pc.mutation.Views(); !ok {
 		return &ValidationError{Name: "views", err: errors.New(`ent: missing required field "Page.views"`)}

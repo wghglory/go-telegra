@@ -45,7 +45,7 @@ func CreateAccount(c *fiber.Ctx) error {
 
 	return c.JSON(&model.Response{
 		Ok:     true,
-		Result: data,
+		Result: account,
 	})
 }
 

@@ -1,62 +1,99 @@
 import http, {AppError, AppResponse} from '@/utils/axios';
-import {Button} from '@chakra-ui/react';
+import {FormControl, FormLabel, FormHelperText, Input, Button, Checkbox, Textarea} from '@chakra-ui/react';
 import {useQuery} from '@tanstack/react-query';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
+import TabLayout from '../TabLayout';
 
 const expected = {
   ok: true,
   result: {
-    access_token: 'f7281879a3479e951c9e3aa04d9d91d7e227b15ab8dda2f34ad42ef7e08b5c69',
-    auth_url: 'http://localhost:8080/auth/f7281879a3479e951c9e3aa04d9d91d7e227b15ab8dda2f34ad42ef7e08b5c69',
+    path: 'Sample Page-1668333114744584000',
+    url: 'http://localhost:8080/Sample Page-1668333114744584000',
+    title: 'Sample Page',
+    description: 'Optional description',
+    author_name: 'Derek Wang',
+    author_url: 'https://github.com/wghglory/go-telegra',
+    content: [
+      {
+        tag: 'p',
+        children: ['Hello World'],
+      },
+    ],
+    views: 1,
+    can_edit: true,
   },
 };
 
 {
-  /* http://localhost:8080/revokeAccessToken?short_name=Derek&author_name=Derek%20Wang&author_url=https://github.com/wghglory/go-telegra */
+  /* http://localhost:8080/editPage?access_token=eec0b228c9fa28cc7dfd8dfbb84d47ad16a2d39e1ebf8c4f466d1acf9b443840&title=First&author_name=Derek+Wang&content=[%7B%22tag%22:%22p%22,%22children%22:[%22Hello,+world!%22]%7D]&return_content=true */
 }
-export default function revokeAccessToken() {
+export default function EditPage() {
+  const path = localStorage.getItem('telegra_path');
   const [api, setApi] = useState('');
-  const [token, setToken] = useState('');
-
-  useEffect(() => {
-    if (token) {
-      setTimeout(() => {
-        remove();
-        refetch();
-      }, 50);
-    }
-  }, [token]);
+  const [title, setTitle] = useState('Sample Page');
+  const [authorName, setAuthorName] = useState('Derek Wang');
+  const [authorUrl, setAuthorUrl] = useState('https://github.com/wghglory/go-telegra');
+  const [description, setDescription] = useState('');
+  const [returnContent, setReturnContent] = useState(false);
+  const content = `[{"tag": "p", "children": ["You updated content!"]}]`;
 
   const {data, error, refetch, remove} = useQuery<AppResponse, AppError>(
-    ['revokeAccessToken', token],
+    ['editPage'],
     () => {
       const params = {
-        access_token: token,
+        title,
+        description,
+        author_name: authorName,
+        author_url: authorUrl,
+        return_content: returnContent.toString(),
+        access_token: localStorage.getItem('telegra_access_token') || '',
+        content,
       };
 
       const paramString = new URLSearchParams(params).toString();
-      setApi(`/revokeAccessToken/${paramString}`);
 
-      return http.get('/revokeAccessToken', {
+      setApi(encodeURI(`/editPage/${path}?${paramString}`));
+
+      return http.get(`/editPage/${path}`, {
         params,
       });
     },
     {
       enabled: false,
+      onSuccess({result}) {
+        localStorage.setItem('telegra_path', result.path);
+      },
     },
   );
 
+  function submit() {
+    remove();
+    refetch();
+  }
+
   return (
     <TabLayout data={data || error} api={api} expected={expected}>
-      <Button
-        colorScheme="telegram"
-        variant="solid"
-        onClick={() => setToken(localStorage.getItem('telegra_access_token') || '')}
-      >
-        Revoke Access Token
-      </Button>
-      <Button colorScheme="red" variant="solid" onClick={() => setToken('a_wrong_token')}>
-        Revoke Access Token with wrong token
+      <FormControl>
+        <FormLabel>Title (Required)</FormLabel>
+        <Input type="text" value={title} onChange={e => setTitle(e.target.value)} />
+      </FormControl>
+      <FormControl>
+        <FormLabel>Author Name</FormLabel>
+        <Input type="text" value={authorName} onChange={e => setAuthorName(e.target.value)} />
+      </FormControl>
+      <FormControl>
+        <FormLabel>Author Url</FormLabel>
+        <Input type="text" value={authorUrl} onChange={e => setAuthorUrl(e.target.value)} />
+      </FormControl>
+      <FormControl>
+        <FormLabel>Description</FormLabel>
+        <Textarea value={description} onChange={e => setDescription(e.target.value)} />
+      </FormControl>
+      <FormControl>
+        <Checkbox onChange={e => setReturnContent(e.target.checked)}>Return Content</Checkbox>
+      </FormControl>
+      <Button colorScheme="telegram" variant="solid" onClick={submit}>
+        Edit Page
       </Button>
     </TabLayout>
   );

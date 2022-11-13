@@ -141,9 +141,9 @@ func GetPage(c *fiber.Ctx) error {
 // valid but not content: http://localhost:8080/editPage/First-1668242327838759000?access_token=eec0b228c9fa28cc7dfd8dfbb84d47ad16a2d39e1ebf8c4f466d1acf9b443840&title=Sample+Page&author_name=Derek+Wang&content=[%7B%22tag%22:%22div%22,%22children%22:[%22Hello,+New+world!%22]%7D]
 // valid with content: http://localhost:8080/editPage/First-1668242327838759000?access_token=eec0b228c9fa28cc7dfd8dfbb84d47ad16a2d39e1ebf8c4f466d1acf9b443840&title=Sample+Page&author_name=Derek+Wang&content=[%7B%22tag%22:%22div%22,%22children%22:[%22Hello,+New+world!%22]%7D]&return_content=true
 func EditPage(c *fiber.Ctx) error {
-	path := c.Params("path")
 	accessToken := c.Query("access_token")
 	title := c.Query("title")
+	path, _ := url.PathUnescape(c.Params("path"))
 	content := c.Query("content")
 	description := c.Query("description")
 	authorName := c.Query("author_name")
@@ -157,20 +157,25 @@ func EditPage(c *fiber.Ctx) error {
 
 	if _, err := database.EntClient.Account.Query().Where(account.AccessTokenEQ(accessToken)).Only(context.Background()); err == nil {
 
+		var nodes []model.NodeElement
+		if err := json.Unmarshal([]byte(content), &nodes); err != nil {
+			return c.JSON(&model.Response{
+				Ok:    false,
+				Error: "Fail to provide a valid DOM element",
+			})
+		}
+
+		var canEdit bool = false
+		if c.Query("return_content") == "true" {
+			canEdit = true
+		}
+
 		pageEntity, err := database.EntClient.Page.Query().Where(page.PathEQ(path)).Only(context.Background())
 
 		if err != nil {
 			return c.JSON(&model.Response{
 				Ok:    false,
 				Error: "Cannot find the path",
-			})
-		}
-
-		var nodes []model.NodeElement
-		if err := json.Unmarshal([]byte(content), &nodes); err != nil {
-			return c.JSON(&model.Response{
-				Ok:    false,
-				Error: "Fail to provide a valid DOM element",
 			})
 		}
 
@@ -181,13 +186,13 @@ func EditPage(c *fiber.Ctx) error {
 			SetDescription(description).
 			SetContent(content).
 			SetViews(pageEntity.Views + 1).
-			SetCanEdit(true).
+			SetCanEdit(canEdit).
 			Save(context.Background())
 
 		if err != nil {
 			return c.Status(500).JSON(&model.Response{
 				Ok:    false,
-				Error: fmt.Sprintf("failed to update a page with path: %v", path),
+				Error: fmt.Sprintf("failed to update a page: %v", err),
 			})
 		}
 

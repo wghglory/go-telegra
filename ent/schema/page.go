@@ -14,14 +14,14 @@ type Page struct {
 // Fields of the Page.
 func (Page) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("path"),
-		field.String("url"),
+		field.String("path").NotEmpty(),
+		field.String("url").NotEmpty(),
 		field.String("title").NotEmpty().MinLen(1).MaxLen(256),
 		field.String("description").Optional(),
 		field.String("author_name").Optional().MaxLen(128),
 		field.String("author_url").Optional().MaxLen(512),
 		field.String("image_url").Optional(),
-		field.String("content").Optional(),
+		field.String("content").NotEmpty(),
 		field.Int("views").Default(0),
 		field.Bool("can_edit").Default(false),
 	}

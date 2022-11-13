@@ -100,14 +100,6 @@ func (pc *PageCreate) SetContent(s string) *PageCreate {
 	return pc
 }
 
-// SetNillableContent sets the "content" field if the given value is not nil.
-func (pc *PageCreate) SetNillableContent(s *string) *PageCreate {
-	if s != nil {
-		pc.SetContent(*s)
-	}
-	return pc
-}
-
 // SetViews sets the "views" field.
 func (pc *PageCreate) SetViews(i int) *PageCreate {
 	pc.mutation.SetViews(i)
@@ -247,8 +239,18 @@ func (pc *PageCreate) check() error {
 	if _, ok := pc.mutation.Path(); !ok {
 		return &ValidationError{Name: "path", err: errors.New(`ent: missing required field "Page.path"`)}
 	}
+	if v, ok := pc.mutation.Path(); ok {
+		if err := page.PathValidator(v); err != nil {
+			return &ValidationError{Name: "path", err: fmt.Errorf(`ent: validator failed for field "Page.path": %w`, err)}
+		}
+	}
 	if _, ok := pc.mutation.URL(); !ok {
 		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Page.url"`)}
+	}
+	if v, ok := pc.mutation.URL(); ok {
+		if err := page.URLValidator(v); err != nil {
+			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Page.url": %w`, err)}
+		}
 	}
 	if _, ok := pc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Page.title"`)}
@@ -266,6 +268,14 @@ func (pc *PageCreate) check() error {
 	if v, ok := pc.mutation.AuthorURL(); ok {
 		if err := page.AuthorURLValidator(v); err != nil {
 			return &ValidationError{Name: "author_url", err: fmt.Errorf(`ent: validator failed for field "Page.author_url": %w`, err)}
+		}
+	}
+	if _, ok := pc.mutation.Content(); !ok {
+		return &ValidationError{Name: "content", err: errors.New(`ent: missing required field "Page.content"`)}
+	}
+	if v, ok := pc.mutation.Content(); ok {
+		if err := page.ContentValidator(v); err != nil {
+			return &ValidationError{Name: "content", err: fmt.Errorf(`ent: validator failed for field "Page.content": %w`, err)}
 		}
 	}
 	if _, ok := pc.mutation.Views(); !ok {

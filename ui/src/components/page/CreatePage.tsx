@@ -39,18 +39,15 @@ export default function CreatePage() {
   const {data, error, refetch, remove} = useQuery<AppResponse, AppError>(
     ['createPage'],
     () => {
-      const params: any = {
+      const params = {
         title,
         description,
         author_name: authorName,
         author_url: authorUrl,
         return_content: returnContent.toString(),
         access_token: localStorage.getItem('telegra_access_token') || '',
+        content,
       };
-
-      if (returnContent) {
-        params['content'] = content;
-      }
 
       const paramString = new URLSearchParams(params).toString();
       setApi(`/createPage/${paramString}`);
@@ -61,6 +58,9 @@ export default function CreatePage() {
     },
     {
       enabled: false,
+      onSuccess({result}) {
+        localStorage.setItem('telegra_path', result.path);
+      },
     },
   );
 

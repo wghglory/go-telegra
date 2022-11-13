@@ -55,6 +55,14 @@ func init() {
 	account.DefaultPageCount = accountDescPageCount.Default.(int)
 	pageFields := schema.Page{}.Fields()
 	_ = pageFields
+	// pageDescPath is the schema descriptor for path field.
+	pageDescPath := pageFields[0].Descriptor()
+	// page.PathValidator is a validator for the "path" field. It is called by the builders before save.
+	page.PathValidator = pageDescPath.Validators[0].(func(string) error)
+	// pageDescURL is the schema descriptor for url field.
+	pageDescURL := pageFields[1].Descriptor()
+	// page.URLValidator is a validator for the "url" field. It is called by the builders before save.
+	page.URLValidator = pageDescURL.Validators[0].(func(string) error)
 	// pageDescTitle is the schema descriptor for title field.
 	pageDescTitle := pageFields[2].Descriptor()
 	// page.TitleValidator is a validator for the "title" field. It is called by the builders before save.
@@ -82,6 +90,10 @@ func init() {
 	pageDescAuthorURL := pageFields[5].Descriptor()
 	// page.AuthorURLValidator is a validator for the "author_url" field. It is called by the builders before save.
 	page.AuthorURLValidator = pageDescAuthorURL.Validators[0].(func(string) error)
+	// pageDescContent is the schema descriptor for content field.
+	pageDescContent := pageFields[7].Descriptor()
+	// page.ContentValidator is a validator for the "content" field. It is called by the builders before save.
+	page.ContentValidator = pageDescContent.Validators[0].(func(string) error)
 	// pageDescViews is the schema descriptor for views field.
 	pageDescViews := pageFields[8].Descriptor()
 	// page.DefaultViews holds the default value on creation for the views field.

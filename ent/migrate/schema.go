@@ -34,7 +34,7 @@ var (
 		{Name: "author_name", Type: field.TypeString, Nullable: true, Size: 128},
 		{Name: "author_url", Type: field.TypeString, Nullable: true, Size: 512},
 		{Name: "image_url", Type: field.TypeString, Nullable: true},
-		{Name: "content", Type: field.TypeString, Nullable: true},
+		{Name: "content", Type: field.TypeString},
 		{Name: "views", Type: field.TypeInt, Default: 0},
 		{Name: "can_edit", Type: field.TypeBool, Default: false},
 		{Name: "account_pages", Type: field.TypeInt, Nullable: true},

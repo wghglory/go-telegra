@@ -984,20 +984,6 @@ func ContentHasSuffix(v string) predicate.Page {
 	})
 }
 
-// ContentIsNil applies the IsNil predicate on the "content" field.
-func ContentIsNil() predicate.Page {
-	return predicate.Page(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldContent)))
-	})
-}
-
-// ContentNotNil applies the NotNil predicate on the "content" field.
-func ContentNotNil() predicate.Page {
-	return predicate.Page(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldContent)))
-	})
-}
-
 // ContentEqualFold applies the EqualFold predicate on the "content" field.
 func ContentEqualFold(v string) predicate.Page {
 	return predicate.Page(func(s *sql.Selector) {

@@ -132,20 +132,6 @@ func (pu *PageUpdate) SetContent(s string) *PageUpdate {
 	return pu
 }
 
-// SetNillableContent sets the "content" field if the given value is not nil.
-func (pu *PageUpdate) SetNillableContent(s *string) *PageUpdate {
-	if s != nil {
-		pu.SetContent(*s)
-	}
-	return pu
-}
-
-// ClearContent clears the value of the "content" field.
-func (pu *PageUpdate) ClearContent() *PageUpdate {
-	pu.mutation.ClearContent()
-	return pu
-}
-
 // SetViews sets the "views" field.
 func (pu *PageUpdate) SetViews(i int) *PageUpdate {
 	pu.mutation.ResetViews()
@@ -273,6 +259,16 @@ func (pu *PageUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (pu *PageUpdate) check() error {
+	if v, ok := pu.mutation.Path(); ok {
+		if err := page.PathValidator(v); err != nil {
+			return &ValidationError{Name: "path", err: fmt.Errorf(`ent: validator failed for field "Page.path": %w`, err)}
+		}
+	}
+	if v, ok := pu.mutation.URL(); ok {
+		if err := page.URLValidator(v); err != nil {
+			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Page.url": %w`, err)}
+		}
+	}
 	if v, ok := pu.mutation.Title(); ok {
 		if err := page.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Page.title": %w`, err)}
@@ -286,6 +282,11 @@ func (pu *PageUpdate) check() error {
 	if v, ok := pu.mutation.AuthorURL(); ok {
 		if err := page.AuthorURLValidator(v); err != nil {
 			return &ValidationError{Name: "author_url", err: fmt.Errorf(`ent: validator failed for field "Page.author_url": %w`, err)}
+		}
+	}
+	if v, ok := pu.mutation.Content(); ok {
+		if err := page.ContentValidator(v); err != nil {
+			return &ValidationError{Name: "content", err: fmt.Errorf(`ent: validator failed for field "Page.content": %w`, err)}
 		}
 	}
 	return nil
@@ -344,9 +345,6 @@ func (pu *PageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.Content(); ok {
 		_spec.SetField(page.FieldContent, field.TypeString, value)
-	}
-	if pu.mutation.ContentCleared() {
-		_spec.ClearField(page.FieldContent, field.TypeString)
 	}
 	if value, ok := pu.mutation.Views(); ok {
 		_spec.SetField(page.FieldViews, field.TypeInt, value)
@@ -515,20 +513,6 @@ func (puo *PageUpdateOne) SetContent(s string) *PageUpdateOne {
 	return puo
 }
 
-// SetNillableContent sets the "content" field if the given value is not nil.
-func (puo *PageUpdateOne) SetNillableContent(s *string) *PageUpdateOne {
-	if s != nil {
-		puo.SetContent(*s)
-	}
-	return puo
-}
-
-// ClearContent clears the value of the "content" field.
-func (puo *PageUpdateOne) ClearContent() *PageUpdateOne {
-	puo.mutation.ClearContent()
-	return puo
-}
-
 // SetViews sets the "views" field.
 func (puo *PageUpdateOne) SetViews(i int) *PageUpdateOne {
 	puo.mutation.ResetViews()
@@ -669,6 +653,16 @@ func (puo *PageUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (puo *PageUpdateOne) check() error {
+	if v, ok := puo.mutation.Path(); ok {
+		if err := page.PathValidator(v); err != nil {
+			return &ValidationError{Name: "path", err: fmt.Errorf(`ent: validator failed for field "Page.path": %w`, err)}
+		}
+	}
+	if v, ok := puo.mutation.URL(); ok {
+		if err := page.URLValidator(v); err != nil {
+			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Page.url": %w`, err)}
+		}
+	}
 	if v, ok := puo.mutation.Title(); ok {
 		if err := page.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Page.title": %w`, err)}
@@ -682,6 +676,11 @@ func (puo *PageUpdateOne) check() error {
 	if v, ok := puo.mutation.AuthorURL(); ok {
 		if err := page.AuthorURLValidator(v); err != nil {
 			return &ValidationError{Name: "author_url", err: fmt.Errorf(`ent: validator failed for field "Page.author_url": %w`, err)}
+		}
+	}
+	if v, ok := puo.mutation.Content(); ok {
+		if err := page.ContentValidator(v); err != nil {
+			return &ValidationError{Name: "content", err: fmt.Errorf(`ent: validator failed for field "Page.content": %w`, err)}
 		}
 	}
 	return nil
@@ -757,9 +756,6 @@ func (puo *PageUpdateOne) sqlSave(ctx context.Context) (_node *Page, err error) 
 	}
 	if value, ok := puo.mutation.Content(); ok {
 		_spec.SetField(page.FieldContent, field.TypeString, value)
-	}
-	if puo.mutation.ContentCleared() {
-		_spec.ClearField(page.FieldContent, field.TypeString)
 	}
 	if value, ok := puo.mutation.Views(); ok {
 		_spec.SetField(page.FieldViews, field.TypeInt, value)

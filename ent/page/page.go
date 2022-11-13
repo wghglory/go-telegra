@@ -77,12 +77,18 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// PathValidator is a validator for the "path" field. It is called by the builders before save.
+	PathValidator func(string) error
+	// URLValidator is a validator for the "url" field. It is called by the builders before save.
+	URLValidator func(string) error
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
 	// AuthorNameValidator is a validator for the "author_name" field. It is called by the builders before save.
 	AuthorNameValidator func(string) error
 	// AuthorURLValidator is a validator for the "author_url" field. It is called by the builders before save.
 	AuthorURLValidator func(string) error
+	// ContentValidator is a validator for the "content" field. It is called by the builders before save.
+	ContentValidator func(string) error
 	// DefaultViews holds the default value on creation for the "views" field.
 	DefaultViews int
 	// DefaultCanEdit holds the default value on creation for the "can_edit" field.

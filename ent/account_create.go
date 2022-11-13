@@ -167,17 +167,42 @@ func (ac *AccountCreate) check() error {
 	if _, ok := ac.mutation.ShortName(); !ok {
 		return &ValidationError{Name: "short_name", err: errors.New(`ent: missing required field "Account.short_name"`)}
 	}
+	if v, ok := ac.mutation.ShortName(); ok {
+		if err := account.ShortNameValidator(v); err != nil {
+			return &ValidationError{Name: "short_name", err: fmt.Errorf(`ent: validator failed for field "Account.short_name": %w`, err)}
+		}
+	}
 	if _, ok := ac.mutation.AuthorName(); !ok {
 		return &ValidationError{Name: "author_name", err: errors.New(`ent: missing required field "Account.author_name"`)}
+	}
+	if v, ok := ac.mutation.AuthorName(); ok {
+		if err := account.AuthorNameValidator(v); err != nil {
+			return &ValidationError{Name: "author_name", err: fmt.Errorf(`ent: validator failed for field "Account.author_name": %w`, err)}
+		}
 	}
 	if _, ok := ac.mutation.AuthorURL(); !ok {
 		return &ValidationError{Name: "author_url", err: errors.New(`ent: missing required field "Account.author_url"`)}
 	}
+	if v, ok := ac.mutation.AuthorURL(); ok {
+		if err := account.AuthorURLValidator(v); err != nil {
+			return &ValidationError{Name: "author_url", err: fmt.Errorf(`ent: validator failed for field "Account.author_url": %w`, err)}
+		}
+	}
 	if _, ok := ac.mutation.AccessToken(); !ok {
 		return &ValidationError{Name: "access_token", err: errors.New(`ent: missing required field "Account.access_token"`)}
 	}
+	if v, ok := ac.mutation.AccessToken(); ok {
+		if err := account.AccessTokenValidator(v); err != nil {
+			return &ValidationError{Name: "access_token", err: fmt.Errorf(`ent: validator failed for field "Account.access_token": %w`, err)}
+		}
+	}
 	if _, ok := ac.mutation.AuthURL(); !ok {
 		return &ValidationError{Name: "auth_url", err: errors.New(`ent: missing required field "Account.auth_url"`)}
+	}
+	if v, ok := ac.mutation.AuthURL(); ok {
+		if err := account.AuthURLValidator(v); err != nil {
+			return &ValidationError{Name: "auth_url", err: fmt.Errorf(`ent: validator failed for field "Account.auth_url": %w`, err)}
+		}
 	}
 	if _, ok := ac.mutation.PageCount(); !ok {
 		return &ValidationError{Name: "page_count", err: errors.New(`ent: missing required field "Account.page_count"`)}

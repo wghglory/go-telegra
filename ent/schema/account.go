@@ -14,11 +14,11 @@ type Account struct {
 // Fields of the Account.
 func (Account) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("short_name"),
-		field.String("author_name"),
-		field.String("author_url"),
-		field.String("access_token"),
-		field.String("auth_url"),
+		field.String("short_name").NotEmpty().MinLen(1).MaxLen(32),
+		field.String("author_name").MaxLen(128),
+		field.String("author_url").MaxLen(512),
+		field.String("access_token").NotEmpty(),
+		field.String("auth_url").NotEmpty(),
 		field.Int("page_count").Default(0),
 	}
 }

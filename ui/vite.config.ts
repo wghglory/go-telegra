@@ -17,8 +17,8 @@ export default defineConfig({
     cors: true,
     proxy: {
       // common usage
-      '/api/v1': {
-        target: 'http://localhost:3000', // mock
+      '^/(createAccount|getAccountInfo|revokeAccessToken|getPage|createPage|editPage)': {
+        target: 'http://localhost:8080', // mock
         changeOrigin: true,
         secure: false, // [vite] http proxy error: Error: self signed certificate in certificate chain
         // rewrite: (path) => path.replace(/^\/api/, ''),
@@ -36,7 +36,7 @@ export default defineConfig({
       '^/fallback/.*': {
         target: 'http://jsonplaceholder.typicode.com',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/fallback/, ''),
+        rewrite: path => path.replace(/^\/fallback/, ''),
       },
     },
   },

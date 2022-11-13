@@ -14,6 +14,41 @@ import (
 func init() {
 	accountFields := schema.Account{}.Fields()
 	_ = accountFields
+	// accountDescShortName is the schema descriptor for short_name field.
+	accountDescShortName := accountFields[0].Descriptor()
+	// account.ShortNameValidator is a validator for the "short_name" field. It is called by the builders before save.
+	account.ShortNameValidator = func() func(string) error {
+		validators := accountDescShortName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+			validators[2].(func(string) error),
+		}
+		return func(short_name string) error {
+			for _, fn := range fns {
+				if err := fn(short_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// accountDescAuthorName is the schema descriptor for author_name field.
+	accountDescAuthorName := accountFields[1].Descriptor()
+	// account.AuthorNameValidator is a validator for the "author_name" field. It is called by the builders before save.
+	account.AuthorNameValidator = accountDescAuthorName.Validators[0].(func(string) error)
+	// accountDescAuthorURL is the schema descriptor for author_url field.
+	accountDescAuthorURL := accountFields[2].Descriptor()
+	// account.AuthorURLValidator is a validator for the "author_url" field. It is called by the builders before save.
+	account.AuthorURLValidator = accountDescAuthorURL.Validators[0].(func(string) error)
+	// accountDescAccessToken is the schema descriptor for access_token field.
+	accountDescAccessToken := accountFields[3].Descriptor()
+	// account.AccessTokenValidator is a validator for the "access_token" field. It is called by the builders before save.
+	account.AccessTokenValidator = accountDescAccessToken.Validators[0].(func(string) error)
+	// accountDescAuthURL is the schema descriptor for auth_url field.
+	accountDescAuthURL := accountFields[4].Descriptor()
+	// account.AuthURLValidator is a validator for the "auth_url" field. It is called by the builders before save.
+	account.AuthURLValidator = accountDescAuthURL.Validators[0].(func(string) error)
 	// accountDescPageCount is the schema descriptor for page_count field.
 	accountDescPageCount := accountFields[5].Descriptor()
 	// account.DefaultPageCount holds the default value on creation for the page_count field.

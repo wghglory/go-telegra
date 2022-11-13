@@ -11,9 +11,9 @@ var (
 	// AccountsColumns holds the columns for the "accounts" table.
 	AccountsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "short_name", Type: field.TypeString},
-		{Name: "author_name", Type: field.TypeString},
-		{Name: "author_url", Type: field.TypeString},
+		{Name: "short_name", Type: field.TypeString, Size: 32},
+		{Name: "author_name", Type: field.TypeString, Size: 128},
+		{Name: "author_url", Type: field.TypeString, Size: 512},
 		{Name: "access_token", Type: field.TypeString},
 		{Name: "auth_url", Type: field.TypeString},
 		{Name: "page_count", Type: field.TypeInt, Default: 0},

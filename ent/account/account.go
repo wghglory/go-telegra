@@ -54,6 +54,16 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// ShortNameValidator is a validator for the "short_name" field. It is called by the builders before save.
+	ShortNameValidator func(string) error
+	// AuthorNameValidator is a validator for the "author_name" field. It is called by the builders before save.
+	AuthorNameValidator func(string) error
+	// AuthorURLValidator is a validator for the "author_url" field. It is called by the builders before save.
+	AuthorURLValidator func(string) error
+	// AccessTokenValidator is a validator for the "access_token" field. It is called by the builders before save.
+	AccessTokenValidator func(string) error
+	// AuthURLValidator is a validator for the "auth_url" field. It is called by the builders before save.
+	AuthURLValidator func(string) error
 	// DefaultPageCount holds the default value on creation for the "page_count" field.
 	DefaultPageCount int
 )

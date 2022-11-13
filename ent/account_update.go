@@ -127,12 +127,18 @@ func (au *AccountUpdate) Save(ctx context.Context) (int, error) {
 		affected int
 	)
 	if len(au.hooks) == 0 {
+		if err = au.check(); err != nil {
+			return 0, err
+		}
 		affected, err = au.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*AccountMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = au.check(); err != nil {
+				return 0, err
 			}
 			au.mutation = mutation
 			affected, err = au.sqlSave(ctx)
@@ -172,6 +178,36 @@ func (au *AccountUpdate) ExecX(ctx context.Context) {
 	if err := au.Exec(ctx); err != nil {
 		panic(err)
 	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (au *AccountUpdate) check() error {
+	if v, ok := au.mutation.ShortName(); ok {
+		if err := account.ShortNameValidator(v); err != nil {
+			return &ValidationError{Name: "short_name", err: fmt.Errorf(`ent: validator failed for field "Account.short_name": %w`, err)}
+		}
+	}
+	if v, ok := au.mutation.AuthorName(); ok {
+		if err := account.AuthorNameValidator(v); err != nil {
+			return &ValidationError{Name: "author_name", err: fmt.Errorf(`ent: validator failed for field "Account.author_name": %w`, err)}
+		}
+	}
+	if v, ok := au.mutation.AuthorURL(); ok {
+		if err := account.AuthorURLValidator(v); err != nil {
+			return &ValidationError{Name: "author_url", err: fmt.Errorf(`ent: validator failed for field "Account.author_url": %w`, err)}
+		}
+	}
+	if v, ok := au.mutation.AccessToken(); ok {
+		if err := account.AccessTokenValidator(v); err != nil {
+			return &ValidationError{Name: "access_token", err: fmt.Errorf(`ent: validator failed for field "Account.access_token": %w`, err)}
+		}
+	}
+	if v, ok := au.mutation.AuthURL(); ok {
+		if err := account.AuthURLValidator(v); err != nil {
+			return &ValidationError{Name: "auth_url", err: fmt.Errorf(`ent: validator failed for field "Account.auth_url": %w`, err)}
+		}
+	}
+	return nil
 }
 
 func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
@@ -392,12 +428,18 @@ func (auo *AccountUpdateOne) Save(ctx context.Context) (*Account, error) {
 		node *Account
 	)
 	if len(auo.hooks) == 0 {
+		if err = auo.check(); err != nil {
+			return nil, err
+		}
 		node, err = auo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*AccountMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = auo.check(); err != nil {
+				return nil, err
 			}
 			auo.mutation = mutation
 			node, err = auo.sqlSave(ctx)
@@ -443,6 +485,36 @@ func (auo *AccountUpdateOne) ExecX(ctx context.Context) {
 	if err := auo.Exec(ctx); err != nil {
 		panic(err)
 	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (auo *AccountUpdateOne) check() error {
+	if v, ok := auo.mutation.ShortName(); ok {
+		if err := account.ShortNameValidator(v); err != nil {
+			return &ValidationError{Name: "short_name", err: fmt.Errorf(`ent: validator failed for field "Account.short_name": %w`, err)}
+		}
+	}
+	if v, ok := auo.mutation.AuthorName(); ok {
+		if err := account.AuthorNameValidator(v); err != nil {
+			return &ValidationError{Name: "author_name", err: fmt.Errorf(`ent: validator failed for field "Account.author_name": %w`, err)}
+		}
+	}
+	if v, ok := auo.mutation.AuthorURL(); ok {
+		if err := account.AuthorURLValidator(v); err != nil {
+			return &ValidationError{Name: "author_url", err: fmt.Errorf(`ent: validator failed for field "Account.author_url": %w`, err)}
+		}
+	}
+	if v, ok := auo.mutation.AccessToken(); ok {
+		if err := account.AccessTokenValidator(v); err != nil {
+			return &ValidationError{Name: "access_token", err: fmt.Errorf(`ent: validator failed for field "Account.access_token": %w`, err)}
+		}
+	}
+	if v, ok := auo.mutation.AuthURL(); ok {
+		if err := account.AuthURLValidator(v); err != nil {
+			return &ValidationError{Name: "auth_url", err: fmt.Errorf(`ent: validator failed for field "Account.auth_url": %w`, err)}
+		}
+	}
+	return nil
 }
 
 func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err error) {

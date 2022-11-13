@@ -15,7 +15,11 @@ const expected = {
 {
   /* http://localhost:8080/revokeAccessToken?short_name=Derek&author_name=Derek%20Wang&author_url=https://github.com/wghglory/go-telegra */
 }
-export default function revokeAccessToken() {
+export default function revokeAccessToken({
+  setGlobalToken,
+}: {
+  setGlobalToken: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const [api, setApi] = useState('');
   const [token, setToken] = useState('');
 
@@ -46,6 +50,7 @@ export default function revokeAccessToken() {
       enabled: false,
       onSuccess({result}) {
         localStorage.setItem('telegra_access_token', result.access_token);
+        setGlobalToken(result.access_token);
       },
     },
   );

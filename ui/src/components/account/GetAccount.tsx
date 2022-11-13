@@ -31,7 +31,7 @@ const expected3 = {
 {
   /* http://localhost:8080/getAccountInfo?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&fields=[%22short_name%22,%22page_count%22] */
 }
-export default function GetAccount() {
+export default function GetAccount({token}: {token: string}) {
   const [api, setApi] = useState('');
   const [step, setStep] = useState(1);
   const [fields, setFields] = useState<string[]>([]);
@@ -61,7 +61,8 @@ export default function GetAccount() {
     ['getAccountInfoDefault'],
     () => {
       const params = {
-        access_token: localStorage.getItem('telegra_access_token') || '',
+        access_token: token,
+        // access_token: localStorage.getItem('telegra_access_token') || '',
       };
 
       const paramString = new URLSearchParams(params).toString();
@@ -83,7 +84,7 @@ export default function GetAccount() {
     ['getAccountInfo'],
     () => {
       const params = {
-        access_token: localStorage.getItem('telegra_access_token') || '',
+        access_token: token,
         fields: fieldString,
       };
 

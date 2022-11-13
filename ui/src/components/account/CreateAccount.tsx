@@ -18,9 +18,16 @@ const expected = {
 {
   /* http://localhost:8080/createAccount?short_name=Derek&author_name=Derek%20Wang&author_url=https://github.com/wghglory/go-telegra */
 }
-export default function CreateAccount() {
+export default function CreateAccount({
+  shortName,
+  setShortName,
+  setToken,
+}: {
+  shortName: string;
+  setShortName: React.Dispatch<React.SetStateAction<string>>;
+  setToken: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const [api, setApi] = useState('');
-  const [shortName, setShortName] = useState('Derek');
   const [authorName, setAuthorName] = useState('Derek Wang');
   const [authorUrl, setAuthorUrl] = useState('https://github.com/wghglory/go-telegra');
 
@@ -44,6 +51,7 @@ export default function CreateAccount() {
       enabled: false,
       onSuccess({result}) {
         localStorage.setItem('telegra_access_token', result.access_token);
+        setToken(result.access_token);
       },
     },
   );

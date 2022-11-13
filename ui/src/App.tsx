@@ -1,4 +1,5 @@
-import {Tabs, TabList, TabPanels, Tab, TabPanel, Heading, Box} from '@chakra-ui/react';
+import {Tabs, TabList, TabPanels, Tab, TabPanel, Heading, Box, HStack, Badge} from '@chakra-ui/react';
+import {useState} from 'react';
 import './App.css';
 import CreateAccount from './components/account/CreateAccount';
 import GetAccount from './components/account/GetAccount';
@@ -8,9 +9,20 @@ import EditPage from './components/page/EditPage';
 import GetPage from './components/page/GetPage';
 
 function App() {
+  const [shortName, setShortName] = useState('Derek');
+  const [token, setToken] = useState('');
+
   return (
     <Box p="8">
-      <Heading pb="4">Telegra Testing Client</Heading>
+      <HStack justify={'space-between'}>
+        <Heading pb="4">Telegra Testing Client</Heading>
+        <Box fontWeight={600} fontSize="18">
+          {shortName}
+          <Badge colorScheme="green" ml="2" fontSize="0.8em">
+            {token}
+          </Badge>
+        </Box>
+      </HStack>
       <Tabs>
         <TabList>
           <Tab>Create Account</Tab>
@@ -23,13 +35,13 @@ function App() {
 
         <TabPanels>
           <TabPanel>
-            <CreateAccount />
+            <CreateAccount shortName={shortName} setShortName={setShortName} setToken={setToken} />
           </TabPanel>
           <TabPanel>
-            <GetAccount />
+            <GetAccount token={token} />
           </TabPanel>
           <TabPanel>
-            <RevokeAccessToken />
+            <RevokeAccessToken setGlobalToken={setToken} />
           </TabPanel>
           <TabPanel>
             <CreatePage />

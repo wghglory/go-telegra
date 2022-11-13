@@ -2,7 +2,7 @@ import http, {AppError, AppResponse} from '@/utils/axios';
 import {Button} from '@chakra-ui/react';
 import {useQuery} from '@tanstack/react-query';
 import {useEffect, useState} from 'react';
-import TabLayout from './TabLayout';
+import TabLayout from '../TabLayout';
 
 const expected = {
   ok: true,

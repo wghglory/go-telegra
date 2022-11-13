@@ -2,8 +2,8 @@ import http, {AppError, AppResponse} from '@/utils/axios';
 import {Box, Button, Stack, Checkbox, Divider} from '@chakra-ui/react';
 import {useQuery} from '@tanstack/react-query';
 import {useMemo, useState} from 'react';
-import ApiResult from './ApiResult';
-import TabLayout from './TabLayout';
+import ApiResult from '../ApiResult';
+import TabLayout from '../TabLayout';
 
 const expected1 = {
   ok: true,

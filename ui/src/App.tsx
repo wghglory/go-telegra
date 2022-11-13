@@ -1,8 +1,8 @@
 import {Tabs, TabList, TabPanels, Tab, TabPanel, Heading, Box} from '@chakra-ui/react';
 import './App.css';
-import CreateAccount from './components/CreateAccount';
-import GetAccount from './components/GetAccount';
-import RevokeAccessToken from './components/RevokeAccessToken';
+import CreateAccount from './components/account/CreateAccount';
+import GetAccount from './components/account/GetAccount';
+import RevokeAccessToken from './components/account/RevokeAccessToken';
 
 function App() {
   return (

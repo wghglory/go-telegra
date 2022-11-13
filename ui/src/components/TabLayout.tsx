@@ -1,25 +1,26 @@
-import {Box, Heading, HStack, VStack} from '@chakra-ui/react';
+import {HStack, VStack} from '@chakra-ui/react';
+import React from 'react';
+import ApiResult from './ApiResult';
 
-export default function TabLayout({data, children, expected}: any) {
+export default function TabLayout({
+  api = '',
+  data,
+  expected,
+  children,
+  result,
+}: {
+  api?: string;
+  data?: any;
+  expected?: any;
+  children: React.ReactNode;
+  result?: React.ReactNode;
+}) {
   return (
     <HStack spacing={24} align="start">
       <VStack as="form" spacing={6} width="400px" align="start">
         {children}
       </VStack>
-      <VStack align="start" spacing={8}>
-        <section>
-          <Heading as="h2" fontSize={24}>
-            Expected Successful Sample Result
-          </Heading>
-          <Box as="pre">{JSON.stringify(expected, null, 2)}</Box>
-        </section>
-        <section>
-          <Heading as="h2" fontSize={24}>
-            Your Result
-          </Heading>
-          {data && <Box as="pre">{JSON.stringify(data, null, 2)}</Box>}
-        </section>
-      </VStack>
+      {result ? result : <ApiResult data={data} expected={expected} api={api} />}
     </HStack>
   );
 }

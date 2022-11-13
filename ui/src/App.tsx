@@ -1,6 +1,7 @@
 import {Tabs, TabList, TabPanels, Tab, TabPanel, Heading, Box} from '@chakra-ui/react';
 import './App.css';
 import CreateAccount from './components/CreateAccount';
+import GetAccount from './components/GetAccount';
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
             <CreateAccount />
           </TabPanel>
           <TabPanel>
-            <p>two!</p>
+            <GetAccount />
           </TabPanel>
           <TabPanel>
             <p>three!</p>

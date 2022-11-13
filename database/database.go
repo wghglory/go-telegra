@@ -2,7 +2,9 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"telegra/config"
 	"telegra/ent"
 
 	_ "github.com/lib/pq"
@@ -11,8 +13,15 @@ import (
 var EntClient *ent.Client
 
 func init() {
+	host := config.Config("DB_HOST")
+	port := config.Config("DB_PORT")
+	user := config.Config("DB_USER")
+	password := config.Config("DB_PASSWORD")
+	dbname := config.Config("DB_NAME")
+	connectString := fmt.Sprintf("host=%v port=%v dbname=%v user=%v password=%v sslmode=disable", host, port, dbname, user, password)
+
 	// add sslmode=disable to resolve error pq: SSL is not enabled on the server
-	client, err := ent.Open("postgres", "host=localhost port=5432 user=postgres dbname=telegra password=postgres sslmode=disable")
+	client, err := ent.Open("postgres", connectString)
 	if err != nil {
 		log.Fatalf("failed opening connection to postgres: %v", err)
 	}

@@ -748,6 +748,7 @@ type PageMutation struct {
 	title         *string
 	description   *string
 	author_name   *string
+	author_url    *string
 	image_url     *string
 	content       *string
 	views         *int
@@ -1047,9 +1048,71 @@ func (m *PageMutation) OldAuthorName(ctx context.Context) (v string, err error) 
 	return oldValue.AuthorName, nil
 }
 
+// ClearAuthorName clears the value of the "author_name" field.
+func (m *PageMutation) ClearAuthorName() {
+	m.author_name = nil
+	m.clearedFields[page.FieldAuthorName] = struct{}{}
+}
+
+// AuthorNameCleared returns if the "author_name" field was cleared in this mutation.
+func (m *PageMutation) AuthorNameCleared() bool {
+	_, ok := m.clearedFields[page.FieldAuthorName]
+	return ok
+}
+
 // ResetAuthorName resets all changes to the "author_name" field.
 func (m *PageMutation) ResetAuthorName() {
 	m.author_name = nil
+	delete(m.clearedFields, page.FieldAuthorName)
+}
+
+// SetAuthorURL sets the "author_url" field.
+func (m *PageMutation) SetAuthorURL(s string) {
+	m.author_url = &s
+}
+
+// AuthorURL returns the value of the "author_url" field in the mutation.
+func (m *PageMutation) AuthorURL() (r string, exists bool) {
+	v := m.author_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAuthorURL returns the old "author_url" field's value of the Page entity.
+// If the Page object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PageMutation) OldAuthorURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAuthorURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAuthorURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAuthorURL: %w", err)
+	}
+	return oldValue.AuthorURL, nil
+}
+
+// ClearAuthorURL clears the value of the "author_url" field.
+func (m *PageMutation) ClearAuthorURL() {
+	m.author_url = nil
+	m.clearedFields[page.FieldAuthorURL] = struct{}{}
+}
+
+// AuthorURLCleared returns if the "author_url" field was cleared in this mutation.
+func (m *PageMutation) AuthorURLCleared() bool {
+	_, ok := m.clearedFields[page.FieldAuthorURL]
+	return ok
+}
+
+// ResetAuthorURL resets all changes to the "author_url" field.
+func (m *PageMutation) ResetAuthorURL() {
+	m.author_url = nil
+	delete(m.clearedFields, page.FieldAuthorURL)
 }
 
 // SetImageURL sets the "image_url" field.
@@ -1300,7 +1363,7 @@ func (m *PageMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PageMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m._path != nil {
 		fields = append(fields, page.FieldPath)
 	}
@@ -1315,6 +1378,9 @@ func (m *PageMutation) Fields() []string {
 	}
 	if m.author_name != nil {
 		fields = append(fields, page.FieldAuthorName)
+	}
+	if m.author_url != nil {
+		fields = append(fields, page.FieldAuthorURL)
 	}
 	if m.image_url != nil {
 		fields = append(fields, page.FieldImageURL)
@@ -1346,6 +1412,8 @@ func (m *PageMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case page.FieldAuthorName:
 		return m.AuthorName()
+	case page.FieldAuthorURL:
+		return m.AuthorURL()
 	case page.FieldImageURL:
 		return m.ImageURL()
 	case page.FieldContent:
@@ -1373,6 +1441,8 @@ func (m *PageMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldDescription(ctx)
 	case page.FieldAuthorName:
 		return m.OldAuthorName(ctx)
+	case page.FieldAuthorURL:
+		return m.OldAuthorURL(ctx)
 	case page.FieldImageURL:
 		return m.OldImageURL(ctx)
 	case page.FieldContent:
@@ -1424,6 +1494,13 @@ func (m *PageMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAuthorName(v)
+		return nil
+	case page.FieldAuthorURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAuthorURL(v)
 		return nil
 	case page.FieldImageURL:
 		v, ok := value.(string)
@@ -1501,6 +1578,12 @@ func (m *PageMutation) ClearedFields() []string {
 	if m.FieldCleared(page.FieldDescription) {
 		fields = append(fields, page.FieldDescription)
 	}
+	if m.FieldCleared(page.FieldAuthorName) {
+		fields = append(fields, page.FieldAuthorName)
+	}
+	if m.FieldCleared(page.FieldAuthorURL) {
+		fields = append(fields, page.FieldAuthorURL)
+	}
 	if m.FieldCleared(page.FieldImageURL) {
 		fields = append(fields, page.FieldImageURL)
 	}
@@ -1523,6 +1606,12 @@ func (m *PageMutation) ClearField(name string) error {
 	switch name {
 	case page.FieldDescription:
 		m.ClearDescription()
+		return nil
+	case page.FieldAuthorName:
+		m.ClearAuthorName()
+		return nil
+	case page.FieldAuthorURL:
+		m.ClearAuthorURL()
 		return nil
 	case page.FieldImageURL:
 		m.ClearImageURL()
@@ -1552,6 +1641,9 @@ func (m *PageMutation) ResetField(name string) error {
 		return nil
 	case page.FieldAuthorName:
 		m.ResetAuthorName()
+		return nil
+	case page.FieldAuthorURL:
+		m.ResetAuthorURL()
 		return nil
 	case page.FieldImageURL:
 		m.ResetImageURL()

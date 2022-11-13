@@ -26,6 +26,8 @@ type Page struct {
 	Description string `json:"description,omitempty"`
 	// AuthorName holds the value of the "author_name" field.
 	AuthorName string `json:"author_name,omitempty"`
+	// AuthorURL holds the value of the "author_url" field.
+	AuthorURL string `json:"author_url,omitempty"`
 	// ImageURL holds the value of the "image_url" field.
 	ImageURL string `json:"image_url,omitempty"`
 	// Content holds the value of the "content" field.
@@ -71,7 +73,7 @@ func (*Page) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case page.FieldID, page.FieldViews:
 			values[i] = new(sql.NullInt64)
-		case page.FieldPath, page.FieldURL, page.FieldTitle, page.FieldDescription, page.FieldAuthorName, page.FieldImageURL, page.FieldContent:
+		case page.FieldPath, page.FieldURL, page.FieldTitle, page.FieldDescription, page.FieldAuthorName, page.FieldAuthorURL, page.FieldImageURL, page.FieldContent:
 			values[i] = new(sql.NullString)
 		case page.ForeignKeys[0]: // account_pages
 			values[i] = new(sql.NullInt64)
@@ -125,6 +127,12 @@ func (pa *Page) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field author_name", values[i])
 			} else if value.Valid {
 				pa.AuthorName = value.String
+			}
+		case page.FieldAuthorURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field author_url", values[i])
+			} else if value.Valid {
+				pa.AuthorURL = value.String
 			}
 		case page.FieldImageURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -204,6 +212,9 @@ func (pa *Page) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("author_name=")
 	builder.WriteString(pa.AuthorName)
+	builder.WriteString(", ")
+	builder.WriteString("author_url=")
+	builder.WriteString(pa.AuthorURL)
 	builder.WriteString(", ")
 	builder.WriteString("image_url=")
 	builder.WriteString(pa.ImageURL)

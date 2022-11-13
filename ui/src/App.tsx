@@ -3,6 +3,7 @@ import './App.css';
 import CreateAccount from './components/account/CreateAccount';
 import GetAccount from './components/account/GetAccount';
 import RevokeAccessToken from './components/account/RevokeAccessToken';
+import CreatePage from './components/page/CreatePage';
 
 function App() {
   return (
@@ -29,7 +30,7 @@ function App() {
             <RevokeAccessToken />
           </TabPanel>
           <TabPanel>
-            <p>three!</p>
+            <CreatePage />
           </TabPanel>
           <TabPanel>
             <p>three!</p>

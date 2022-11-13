@@ -115,6 +115,13 @@ func AuthorName(v string) predicate.Page {
 	})
 }
 
+// AuthorURL applies equality check predicate on the "author_url" field. It's identical to AuthorURLEQ.
+func AuthorURL(v string) predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldAuthorURL), v))
+	})
+}
+
 // ImageURL applies equality check predicate on the "image_url" field. It's identical to ImageURLEQ.
 func ImageURL(v string) predicate.Page {
 	return predicate.Page(func(s *sql.Selector) {
@@ -638,6 +645,20 @@ func AuthorNameHasSuffix(v string) predicate.Page {
 	})
 }
 
+// AuthorNameIsNil applies the IsNil predicate on the "author_name" field.
+func AuthorNameIsNil() predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldAuthorName)))
+	})
+}
+
+// AuthorNameNotNil applies the NotNil predicate on the "author_name" field.
+func AuthorNameNotNil() predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldAuthorName)))
+	})
+}
+
 // AuthorNameEqualFold applies the EqualFold predicate on the "author_name" field.
 func AuthorNameEqualFold(v string) predicate.Page {
 	return predicate.Page(func(s *sql.Selector) {
@@ -649,6 +670,119 @@ func AuthorNameEqualFold(v string) predicate.Page {
 func AuthorNameContainsFold(v string) predicate.Page {
 	return predicate.Page(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldAuthorName), v))
+	})
+}
+
+// AuthorURLEQ applies the EQ predicate on the "author_url" field.
+func AuthorURLEQ(v string) predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldAuthorURL), v))
+	})
+}
+
+// AuthorURLNEQ applies the NEQ predicate on the "author_url" field.
+func AuthorURLNEQ(v string) predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldAuthorURL), v))
+	})
+}
+
+// AuthorURLIn applies the In predicate on the "author_url" field.
+func AuthorURLIn(vs ...string) predicate.Page {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldAuthorURL), v...))
+	})
+}
+
+// AuthorURLNotIn applies the NotIn predicate on the "author_url" field.
+func AuthorURLNotIn(vs ...string) predicate.Page {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldAuthorURL), v...))
+	})
+}
+
+// AuthorURLGT applies the GT predicate on the "author_url" field.
+func AuthorURLGT(v string) predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldAuthorURL), v))
+	})
+}
+
+// AuthorURLGTE applies the GTE predicate on the "author_url" field.
+func AuthorURLGTE(v string) predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldAuthorURL), v))
+	})
+}
+
+// AuthorURLLT applies the LT predicate on the "author_url" field.
+func AuthorURLLT(v string) predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldAuthorURL), v))
+	})
+}
+
+// AuthorURLLTE applies the LTE predicate on the "author_url" field.
+func AuthorURLLTE(v string) predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldAuthorURL), v))
+	})
+}
+
+// AuthorURLContains applies the Contains predicate on the "author_url" field.
+func AuthorURLContains(v string) predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldAuthorURL), v))
+	})
+}
+
+// AuthorURLHasPrefix applies the HasPrefix predicate on the "author_url" field.
+func AuthorURLHasPrefix(v string) predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldAuthorURL), v))
+	})
+}
+
+// AuthorURLHasSuffix applies the HasSuffix predicate on the "author_url" field.
+func AuthorURLHasSuffix(v string) predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldAuthorURL), v))
+	})
+}
+
+// AuthorURLIsNil applies the IsNil predicate on the "author_url" field.
+func AuthorURLIsNil() predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldAuthorURL)))
+	})
+}
+
+// AuthorURLNotNil applies the NotNil predicate on the "author_url" field.
+func AuthorURLNotNil() predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldAuthorURL)))
+	})
+}
+
+// AuthorURLEqualFold applies the EqualFold predicate on the "author_url" field.
+func AuthorURLEqualFold(v string) predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldAuthorURL), v))
+	})
+}
+
+// AuthorURLContainsFold applies the ContainsFold predicate on the "author_url" field.
+func AuthorURLContainsFold(v string) predicate.Page {
+	return predicate.Page(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldAuthorURL), v))
 	})
 }
 

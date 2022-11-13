@@ -55,12 +55,39 @@ func init() {
 	account.DefaultPageCount = accountDescPageCount.Default.(int)
 	pageFields := schema.Page{}.Fields()
 	_ = pageFields
+	// pageDescTitle is the schema descriptor for title field.
+	pageDescTitle := pageFields[2].Descriptor()
+	// page.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	page.TitleValidator = func() func(string) error {
+		validators := pageDescTitle.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+			validators[2].(func(string) error),
+		}
+		return func(title string) error {
+			for _, fn := range fns {
+				if err := fn(title); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// pageDescAuthorName is the schema descriptor for author_name field.
+	pageDescAuthorName := pageFields[4].Descriptor()
+	// page.AuthorNameValidator is a validator for the "author_name" field. It is called by the builders before save.
+	page.AuthorNameValidator = pageDescAuthorName.Validators[0].(func(string) error)
+	// pageDescAuthorURL is the schema descriptor for author_url field.
+	pageDescAuthorURL := pageFields[5].Descriptor()
+	// page.AuthorURLValidator is a validator for the "author_url" field. It is called by the builders before save.
+	page.AuthorURLValidator = pageDescAuthorURL.Validators[0].(func(string) error)
 	// pageDescViews is the schema descriptor for views field.
-	pageDescViews := pageFields[7].Descriptor()
+	pageDescViews := pageFields[8].Descriptor()
 	// page.DefaultViews holds the default value on creation for the views field.
 	page.DefaultViews = pageDescViews.Default.(int)
 	// pageDescCanEdit is the schema descriptor for can_edit field.
-	pageDescCanEdit := pageFields[8].Descriptor()
+	pageDescCanEdit := pageFields[9].Descriptor()
 	// page.DefaultCanEdit holds the default value on creation for the can_edit field.
 	page.DefaultCanEdit = pageDescCanEdit.Default.(bool)
 }

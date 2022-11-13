@@ -16,9 +16,10 @@ func (Page) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("path"),
 		field.String("url"),
-		field.String("title"),
+		field.String("title").NotEmpty().MinLen(1).MaxLen(256),
 		field.String("description").Optional(),
-		field.String("author_name"),
+		field.String("author_name").Optional().MaxLen(128),
+		field.String("author_url").Optional().MaxLen(512),
 		field.String("image_url").Optional(),
 		field.String("content").Optional(),
 		field.Int("views").Default(0),

@@ -72,6 +72,40 @@ func (pu *PageUpdate) SetAuthorName(s string) *PageUpdate {
 	return pu
 }
 
+// SetNillableAuthorName sets the "author_name" field if the given value is not nil.
+func (pu *PageUpdate) SetNillableAuthorName(s *string) *PageUpdate {
+	if s != nil {
+		pu.SetAuthorName(*s)
+	}
+	return pu
+}
+
+// ClearAuthorName clears the value of the "author_name" field.
+func (pu *PageUpdate) ClearAuthorName() *PageUpdate {
+	pu.mutation.ClearAuthorName()
+	return pu
+}
+
+// SetAuthorURL sets the "author_url" field.
+func (pu *PageUpdate) SetAuthorURL(s string) *PageUpdate {
+	pu.mutation.SetAuthorURL(s)
+	return pu
+}
+
+// SetNillableAuthorURL sets the "author_url" field if the given value is not nil.
+func (pu *PageUpdate) SetNillableAuthorURL(s *string) *PageUpdate {
+	if s != nil {
+		pu.SetAuthorURL(*s)
+	}
+	return pu
+}
+
+// ClearAuthorURL clears the value of the "author_url" field.
+func (pu *PageUpdate) ClearAuthorURL() *PageUpdate {
+	pu.mutation.ClearAuthorURL()
+	return pu
+}
+
 // SetImageURL sets the "image_url" field.
 func (pu *PageUpdate) SetImageURL(s string) *PageUpdate {
 	pu.mutation.SetImageURL(s)
@@ -184,12 +218,18 @@ func (pu *PageUpdate) Save(ctx context.Context) (int, error) {
 		affected int
 	)
 	if len(pu.hooks) == 0 {
+		if err = pu.check(); err != nil {
+			return 0, err
+		}
 		affected, err = pu.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*PageMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = pu.check(); err != nil {
+				return 0, err
 			}
 			pu.mutation = mutation
 			affected, err = pu.sqlSave(ctx)
@@ -231,6 +271,26 @@ func (pu *PageUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (pu *PageUpdate) check() error {
+	if v, ok := pu.mutation.Title(); ok {
+		if err := page.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Page.title": %w`, err)}
+		}
+	}
+	if v, ok := pu.mutation.AuthorName(); ok {
+		if err := page.AuthorNameValidator(v); err != nil {
+			return &ValidationError{Name: "author_name", err: fmt.Errorf(`ent: validator failed for field "Page.author_name": %w`, err)}
+		}
+	}
+	if v, ok := pu.mutation.AuthorURL(); ok {
+		if err := page.AuthorURLValidator(v); err != nil {
+			return &ValidationError{Name: "author_url", err: fmt.Errorf(`ent: validator failed for field "Page.author_url": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (pu *PageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -266,6 +326,15 @@ func (pu *PageUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.AuthorName(); ok {
 		_spec.SetField(page.FieldAuthorName, field.TypeString, value)
+	}
+	if pu.mutation.AuthorNameCleared() {
+		_spec.ClearField(page.FieldAuthorName, field.TypeString)
+	}
+	if value, ok := pu.mutation.AuthorURL(); ok {
+		_spec.SetField(page.FieldAuthorURL, field.TypeString, value)
+	}
+	if pu.mutation.AuthorURLCleared() {
+		_spec.ClearField(page.FieldAuthorURL, field.TypeString)
 	}
 	if value, ok := pu.mutation.ImageURL(); ok {
 		_spec.SetField(page.FieldImageURL, field.TypeString, value)
@@ -383,6 +452,40 @@ func (puo *PageUpdateOne) ClearDescription() *PageUpdateOne {
 // SetAuthorName sets the "author_name" field.
 func (puo *PageUpdateOne) SetAuthorName(s string) *PageUpdateOne {
 	puo.mutation.SetAuthorName(s)
+	return puo
+}
+
+// SetNillableAuthorName sets the "author_name" field if the given value is not nil.
+func (puo *PageUpdateOne) SetNillableAuthorName(s *string) *PageUpdateOne {
+	if s != nil {
+		puo.SetAuthorName(*s)
+	}
+	return puo
+}
+
+// ClearAuthorName clears the value of the "author_name" field.
+func (puo *PageUpdateOne) ClearAuthorName() *PageUpdateOne {
+	puo.mutation.ClearAuthorName()
+	return puo
+}
+
+// SetAuthorURL sets the "author_url" field.
+func (puo *PageUpdateOne) SetAuthorURL(s string) *PageUpdateOne {
+	puo.mutation.SetAuthorURL(s)
+	return puo
+}
+
+// SetNillableAuthorURL sets the "author_url" field if the given value is not nil.
+func (puo *PageUpdateOne) SetNillableAuthorURL(s *string) *PageUpdateOne {
+	if s != nil {
+		puo.SetAuthorURL(*s)
+	}
+	return puo
+}
+
+// ClearAuthorURL clears the value of the "author_url" field.
+func (puo *PageUpdateOne) ClearAuthorURL() *PageUpdateOne {
+	puo.mutation.ClearAuthorURL()
 	return puo
 }
 
@@ -505,12 +608,18 @@ func (puo *PageUpdateOne) Save(ctx context.Context) (*Page, error) {
 		node *Page
 	)
 	if len(puo.hooks) == 0 {
+		if err = puo.check(); err != nil {
+			return nil, err
+		}
 		node, err = puo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*PageMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = puo.check(); err != nil {
+				return nil, err
 			}
 			puo.mutation = mutation
 			node, err = puo.sqlSave(ctx)
@@ -556,6 +665,26 @@ func (puo *PageUpdateOne) ExecX(ctx context.Context) {
 	if err := puo.Exec(ctx); err != nil {
 		panic(err)
 	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (puo *PageUpdateOne) check() error {
+	if v, ok := puo.mutation.Title(); ok {
+		if err := page.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Page.title": %w`, err)}
+		}
+	}
+	if v, ok := puo.mutation.AuthorName(); ok {
+		if err := page.AuthorNameValidator(v); err != nil {
+			return &ValidationError{Name: "author_name", err: fmt.Errorf(`ent: validator failed for field "Page.author_name": %w`, err)}
+		}
+	}
+	if v, ok := puo.mutation.AuthorURL(); ok {
+		if err := page.AuthorURLValidator(v); err != nil {
+			return &ValidationError{Name: "author_url", err: fmt.Errorf(`ent: validator failed for field "Page.author_url": %w`, err)}
+		}
+	}
+	return nil
 }
 
 func (puo *PageUpdateOne) sqlSave(ctx context.Context) (_node *Page, err error) {
@@ -610,6 +739,15 @@ func (puo *PageUpdateOne) sqlSave(ctx context.Context) (_node *Page, err error) 
 	}
 	if value, ok := puo.mutation.AuthorName(); ok {
 		_spec.SetField(page.FieldAuthorName, field.TypeString, value)
+	}
+	if puo.mutation.AuthorNameCleared() {
+		_spec.ClearField(page.FieldAuthorName, field.TypeString)
+	}
+	if value, ok := puo.mutation.AuthorURL(); ok {
+		_spec.SetField(page.FieldAuthorURL, field.TypeString, value)
+	}
+	if puo.mutation.AuthorURLCleared() {
+		_spec.ClearField(page.FieldAuthorURL, field.TypeString)
 	}
 	if value, ok := puo.mutation.ImageURL(); ok {
 		_spec.SetField(page.FieldImageURL, field.TypeString, value)

@@ -58,6 +58,28 @@ func (pc *PageCreate) SetAuthorName(s string) *PageCreate {
 	return pc
 }
 
+// SetNillableAuthorName sets the "author_name" field if the given value is not nil.
+func (pc *PageCreate) SetNillableAuthorName(s *string) *PageCreate {
+	if s != nil {
+		pc.SetAuthorName(*s)
+	}
+	return pc
+}
+
+// SetAuthorURL sets the "author_url" field.
+func (pc *PageCreate) SetAuthorURL(s string) *PageCreate {
+	pc.mutation.SetAuthorURL(s)
+	return pc
+}
+
+// SetNillableAuthorURL sets the "author_url" field if the given value is not nil.
+func (pc *PageCreate) SetNillableAuthorURL(s *string) *PageCreate {
+	if s != nil {
+		pc.SetAuthorURL(*s)
+	}
+	return pc
+}
+
 // SetImageURL sets the "image_url" field.
 func (pc *PageCreate) SetImageURL(s string) *PageCreate {
 	pc.mutation.SetImageURL(s)
@@ -231,8 +253,20 @@ func (pc *PageCreate) check() error {
 	if _, ok := pc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Page.title"`)}
 	}
-	if _, ok := pc.mutation.AuthorName(); !ok {
-		return &ValidationError{Name: "author_name", err: errors.New(`ent: missing required field "Page.author_name"`)}
+	if v, ok := pc.mutation.Title(); ok {
+		if err := page.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Page.title": %w`, err)}
+		}
+	}
+	if v, ok := pc.mutation.AuthorName(); ok {
+		if err := page.AuthorNameValidator(v); err != nil {
+			return &ValidationError{Name: "author_name", err: fmt.Errorf(`ent: validator failed for field "Page.author_name": %w`, err)}
+		}
+	}
+	if v, ok := pc.mutation.AuthorURL(); ok {
+		if err := page.AuthorURLValidator(v); err != nil {
+			return &ValidationError{Name: "author_url", err: fmt.Errorf(`ent: validator failed for field "Page.author_url": %w`, err)}
+		}
 	}
 	if _, ok := pc.mutation.Views(); !ok {
 		return &ValidationError{Name: "views", err: errors.New(`ent: missing required field "Page.views"`)}
@@ -286,6 +320,10 @@ func (pc *PageCreate) createSpec() (*Page, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.AuthorName(); ok {
 		_spec.SetField(page.FieldAuthorName, field.TypeString, value)
 		_node.AuthorName = value
+	}
+	if value, ok := pc.mutation.AuthorURL(); ok {
+		_spec.SetField(page.FieldAuthorURL, field.TypeString, value)
+		_node.AuthorURL = value
 	}
 	if value, ok := pc.mutation.ImageURL(); ok {
 		_spec.SetField(page.FieldImageURL, field.TypeString, value)

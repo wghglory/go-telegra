@@ -32,24 +32,25 @@ func CreatePage(c *fiber.Ctx) error {
 
 		page := &model.Page{
 			Path:        path,
+			Url:         fmt.Sprintf("http://localhost:8080/%v", path),
 			Title:       title,
 			AuthorName:  c.Query("author_name"),
-			Url:         fmt.Sprintf("http://localhost:8080/%v", path),
+			AuthorUrl:   c.Query("author_url"),
 			Description: c.Query("description"),
 			Content:     nil,
 			Views:       1,
 			CanEdit:     false,
 		}
 
-		var nodes []model.NodeElement
-		if err := json.Unmarshal([]byte(content), &nodes); err != nil {
-			return c.JSON(&model.Response{
-				Ok:    false,
-				Error: "Fail to provide a valid DOM element",
-			})
-		}
-
 		if c.Query("return_content") == "true" {
+			var nodes []model.NodeElement
+			if err := json.Unmarshal([]byte(content), &nodes); err != nil {
+				return c.JSON(&model.Response{
+					Ok:    false,
+					Error: "Fail to provide a valid DOM element",
+				})
+			}
+
 			page.Content = nodes
 			page.CanEdit = true
 		}
@@ -58,8 +59,9 @@ func CreatePage(c *fiber.Ctx) error {
 			Create().
 			SetPath(page.Path).
 			SetTitle(page.Title).
-			SetAuthorName(page.AuthorName).
 			SetURL(page.Url).
+			SetAuthorName(page.AuthorName).
+			SetAuthorURL(page.AuthorUrl).
 			SetDescription(page.Description).
 			SetContent(content).
 			SetViews(page.Views).

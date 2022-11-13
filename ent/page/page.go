@@ -17,6 +17,8 @@ const (
 	FieldDescription = "description"
 	// FieldAuthorName holds the string denoting the author_name field in the database.
 	FieldAuthorName = "author_name"
+	// FieldAuthorURL holds the string denoting the author_url field in the database.
+	FieldAuthorURL = "author_url"
 	// FieldImageURL holds the string denoting the image_url field in the database.
 	FieldImageURL = "image_url"
 	// FieldContent holds the string denoting the content field in the database.
@@ -46,6 +48,7 @@ var Columns = []string{
 	FieldTitle,
 	FieldDescription,
 	FieldAuthorName,
+	FieldAuthorURL,
 	FieldImageURL,
 	FieldContent,
 	FieldViews,
@@ -74,6 +77,12 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	TitleValidator func(string) error
+	// AuthorNameValidator is a validator for the "author_name" field. It is called by the builders before save.
+	AuthorNameValidator func(string) error
+	// AuthorURLValidator is a validator for the "author_url" field. It is called by the builders before save.
+	AuthorURLValidator func(string) error
 	// DefaultViews holds the default value on creation for the "views" field.
 	DefaultViews int
 	// DefaultCanEdit holds the default value on creation for the "can_edit" field.

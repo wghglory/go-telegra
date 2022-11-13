@@ -29,9 +29,10 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "path", Type: field.TypeString},
 		{Name: "url", Type: field.TypeString},
-		{Name: "title", Type: field.TypeString},
+		{Name: "title", Type: field.TypeString, Size: 256},
 		{Name: "description", Type: field.TypeString, Nullable: true},
-		{Name: "author_name", Type: field.TypeString},
+		{Name: "author_name", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "author_url", Type: field.TypeString, Nullable: true, Size: 512},
 		{Name: "image_url", Type: field.TypeString, Nullable: true},
 		{Name: "content", Type: field.TypeString, Nullable: true},
 		{Name: "views", Type: field.TypeInt, Default: 0},
@@ -46,7 +47,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "pages_accounts_pages",
-				Columns:    []*schema.Column{PagesColumns[10]},
+				Columns:    []*schema.Column{PagesColumns[11]},
 				RefColumns: []*schema.Column{AccountsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

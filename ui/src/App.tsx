@@ -2,6 +2,7 @@ import {Tabs, TabList, TabPanels, Tab, TabPanel, Heading, Box} from '@chakra-ui/
 import './App.css';
 import CreateAccount from './components/CreateAccount';
 import GetAccount from './components/GetAccount';
+import RevokeAccessToken from './components/RevokeAccessToken';
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
             <GetAccount />
           </TabPanel>
           <TabPanel>
-            <p>three!</p>
+            <RevokeAccessToken />
           </TabPanel>
           <TabPanel>
             <p>three!</p>

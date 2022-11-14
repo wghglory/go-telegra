@@ -66,7 +66,7 @@ export default function GetAccount({token}: {token: string}) {
       };
 
       const paramString = new URLSearchParams(params).toString();
-      setApi(`/getAccountInfo/${paramString}`);
+      setApi(`/getAccountInfo?${paramString}`);
 
       return http.get('/getAccountInfo', {
         params,
@@ -89,7 +89,7 @@ export default function GetAccount({token}: {token: string}) {
       };
 
       const paramString = new URLSearchParams(params).toString();
-      setApi(`/getAccountInfo/${paramString}`);
+      setApi(`/getAccountInfo?${paramString}`);
 
       return http.get('/getAccountInfo', {
         params,
@@ -112,7 +112,7 @@ export default function GetAccount({token}: {token: string}) {
       };
 
       const paramString = new URLSearchParams(params).toString();
-      setApi(`/getAccountInfo/${paramString}`);
+      setApi(`/getAccountInfo?${paramString}`);
 
       return http.get('/getAccountInfo', {
         params,

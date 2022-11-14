@@ -41,7 +41,7 @@ export default function CreateAccount({
       };
 
       const paramString = new URLSearchParams(params).toString();
-      setApi(`/createAccount/${paramString}`);
+      setApi(`/createAccount?${paramString}`);
 
       return http.get('/createAccount', {
         params,

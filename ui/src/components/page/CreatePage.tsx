@@ -50,7 +50,7 @@ export default function CreatePage() {
       };
 
       const paramString = new URLSearchParams(params).toString();
-      setApi(`/createPage/${paramString}`);
+      setApi(`/createPage?${paramString}`);
 
       return http.get('/createPage', {
         params,

@@ -40,7 +40,7 @@ export default function revokeAccessToken({
       };
 
       const paramString = new URLSearchParams(params).toString();
-      setApi(`/revokeAccessToken/${paramString}`);
+      setApi(`/revokeAccessToken?${paramString}`);
 
       return http.get('/revokeAccessToken', {
         params,

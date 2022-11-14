@@ -15,7 +15,7 @@ import (
 )
 
 // http://localhost:8080/createAccount?short_name=Derek&author_name=Derek%20Wang&author_url=https://github.com/wghglory/go-telegra
-func CreateAccount(c *fiber.Ctx) error {
+func CreateAccountGetHandler(c *fiber.Ctx) error {
 	accessToken := utils.GenerateSecureToken(32)
 
 	account := &model.Account{
@@ -25,6 +25,41 @@ func CreateAccount(c *fiber.Ctx) error {
 		AccessToken: accessToken,
 		AuthUrl:     fmt.Sprintf("http://localhost:8080/auth/%v", accessToken),
 	}
+
+	data, err := database.EntClient.Account.
+		Create().
+		SetShortName(account.ShortName).
+		SetAuthorName(account.AuthorName).
+		SetAuthorURL(account.AuthorUrl).
+		SetAccessToken(account.AccessToken).
+		SetAuthURL(account.AuthUrl).
+		Save(context.Background())
+
+	if err != nil {
+		return c.Status(500).JSON(&model.Response{
+			Ok:    false,
+			Error: fmt.Sprintf("failed creating account: %v", err),
+		})
+	}
+	log.Println("Account was created: ", data)
+
+	return c.JSON(&model.Response{
+		Ok:     true,
+		Result: account,
+	})
+}
+
+func CreateAccountPostHandler(c *fiber.Ctx) error {
+	accessToken := utils.GenerateSecureToken(32)
+
+	account := new(model.Account)
+
+	if err := c.BodyParser(account); err != nil {
+		return err
+	}
+
+	account.AccessToken = accessToken
+	account.AuthUrl = fmt.Sprintf("http://localhost:8080/auth/%v", accessToken)
 
 	data, err := database.EntClient.Account.
 		Create().

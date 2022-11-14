@@ -13,7 +13,8 @@ func Routes(app *fiber.App) {
 	api := app
 
 	// http://localhost:8080/createAccount?short_name=Derek&author_name=Derek%20Wang&author_url=https://github.com/wghglory/go-telegra
-	api.Get("/createAccount", handlers.CreateAccount)
+	api.Get("/createAccount", handlers.CreateAccountGetHandler)
+	api.Post("/createAccount", handlers.CreateAccountPostHandler)
 
 	// http://localhost:8080/getAccountInfo?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&fields=[%22short_name%22,%22page_count%22]
 	api.Get("/getAccountInfo", handlers.GetAccountInfo)

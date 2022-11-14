@@ -7,6 +7,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.39.0
 	github.com/joho/godotenv v1.4.0
 	github.com/lib/pq v1.10.7
+	github.com/mattn/go-sqlite3 v1.14.16
 )
 
 require (

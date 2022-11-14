@@ -29,11 +29,13 @@ func Routes(app *fiber.App) {
 	api.Post("/createPage", handlers.CreatePagePostHandler)
 
 	// http://localhost:8080/getPage/Sample-Page-12-15?return_content=true
-	api.Get("/getPage/:path", handlers.GetPage)
+	api.Get("/getPage/:path", handlers.GetPageGetHandler)
+	api.Post("/getPage/:path", handlers.GetPagePostHandler)
 
 	// http://localhost:8080/editPage/Sample-Page-12-15?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&title=Sample+Page&author_name=Derek+Wang&content=[%7B%22tag%22:%22div%22,%22children%22:[%22Hello,+New+world!%22]%7D]&return_content=true
 	// http://localhost:8080/editPage/Sample-Page-12-15?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&title=Sample+Page&author_name=Derek+Wang&content=[%7B%22tag%22:%22div%22,%22children%22:[%22Hello,+New+world!%22]%7D]&return_content=false
-	api.Get("/editPage/:path", handlers.EditPage)
+	api.Get("/editPage/:path", handlers.EditPageGetHandler)
+	api.Post("/editPage/:path", handlers.EditPagePostHandler)
 }
 
 func main() {

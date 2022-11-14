@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	"telegra/database"
 	"telegra/ent/account"
@@ -88,7 +89,7 @@ func CreateAccountPostHandler(c *fiber.Ctx) error {
 // right access token with less fields: http://localhost:8080/getAccountInfo?access_token=f32f947d6eafe80ca5ea7cd15140bea9214606c83487a520090cd1209e98171f&fields=[%22short_name%22,%22page_count%22]
 // right access token with more fields: http://localhost:8080/getAccountInfo?access_token=f32f947d6eafe80ca5ea7cd15140bea9214606c83487a520090cd1209e98171f&fields=[%22short_name%22,%22page_count%22,%22auth_url%22]
 // wrong access token: http://localhost:8080/getAccountInfo?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&fields=%5B%22short_name%22,%22page_count%22%5D
-func GetAccountInfo(c *fiber.Ctx) error {
+func GetAccountInfoGetHandler(c *fiber.Ctx) error {
 	accessToken := c.Query("access_token")
 	// fields (Array of String, default = [“short_name”,“author_name”,“author_url”])
 	// List of account fields to return. Available fields: short_name, author_name, author_url, auth_url, page_count.
@@ -101,23 +102,80 @@ func GetAccountInfo(c *fiber.Ctx) error {
 		})
 	}
 
-	if data, err := database.EntClient.Account.Query().Where(account.AccessTokenEQ(accessToken)).Only(context.Background()); err == nil {
+	if accountEntity, err := database.EntClient.Account.Query().Where(account.AccessTokenEQ(accessToken)).Only(context.Background()); err == nil {
 		var props []string // [short_name, author_name, author_url]
 		err := json.Unmarshal([]byte(fields), &props)
 		if err != nil {
 			return c.Status(500).JSON(&model.Response{
 				Ok:    false,
-				Error: "Wrong fields format",
+				Error: "FIELDS_FORMAT_INVALID",
 			})
 		}
 
 		tmp := map[string]any{}
 		result := map[string]any{}
-		tmp["short_name"] = data.ShortName
-		tmp["author_name"] = data.AuthorName
-		tmp["auth_url"] = data.AuthURL
-		tmp["author_url"] = data.AuthorURL
-		tmp["page_count"] = data.PageCount
+		tmp["short_name"] = accountEntity.ShortName
+		tmp["author_name"] = accountEntity.AuthorName
+		tmp["auth_url"] = accountEntity.AuthURL
+		tmp["author_url"] = accountEntity.AuthorURL
+		tmp["page_count"] = accountEntity.PageCount
+
+		for _, k := range props {
+			if value, ok := tmp[k]; ok {
+				result[k] = value
+			}
+		}
+
+		return c.JSON(&model.Response{
+			Ok:     true,
+			Result: result,
+		})
+	} else {
+		return c.Status(500).JSON(&model.Response{
+			Ok:    false,
+			Error: fmt.Sprintf("%v", err),
+		})
+	}
+}
+
+func GetAccountInfoPostHandler(c *fiber.Ctx) error {
+	payload := new(model.AccountPayload)
+
+	if err := c.BodyParser(payload); err != nil {
+		return err
+	}
+
+	// fields (Array of String, default = [“short_name”,“author_name”,“author_url”])
+	// List of account fields to return. Available fields: short_name, author_name, author_url, auth_url, page_count.
+
+	if payload.AccessToken == "" {
+		return c.JSON(&model.Response{
+			Ok:    false,
+			Error: "ACCESS_TOKEN_INVALID",
+		})
+	}
+
+	if strings.TrimSpace(payload.Fields) == "" {
+		payload.Fields = "[\"short_name\", \"author_name\", \"author_url\"]"
+	}
+
+	if accountEntity, err := database.EntClient.Account.Query().Where(account.AccessTokenEQ(payload.AccessToken)).Only(context.Background()); err == nil {
+		var props []string // [short_name, author_name, author_url]
+		err := json.Unmarshal([]byte(payload.Fields), &props)
+		if err != nil {
+			return c.Status(500).JSON(&model.Response{
+				Ok:    false,
+				Error: "FIELDS_FORMAT_INVALID",
+			})
+		}
+
+		tmp := map[string]any{}
+		result := map[string]any{}
+		tmp["short_name"] = accountEntity.ShortName
+		tmp["author_name"] = accountEntity.AuthorName
+		tmp["auth_url"] = accountEntity.AuthURL
+		tmp["author_url"] = accountEntity.AuthorURL
+		tmp["page_count"] = accountEntity.PageCount
 
 		for _, k := range props {
 			if value, ok := tmp[k]; ok {

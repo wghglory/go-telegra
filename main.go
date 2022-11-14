@@ -17,7 +17,8 @@ func Routes(app *fiber.App) {
 	api.Post("/createAccount", handlers.CreateAccountPostHandler)
 
 	// http://localhost:8080/getAccountInfo?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&fields=[%22short_name%22,%22page_count%22]
-	api.Get("/getAccountInfo", handlers.GetAccountInfo)
+	api.Get("/getAccountInfo", handlers.GetAccountInfoGetHandler)
+	api.Post("/getAccountInfo", handlers.GetAccountInfoPostHandler)
 
 	// http://localhost:8080/revokeAccessToken?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722
 	api.Get("/revokeAccessToken", handlers.RevokeAccessToken)

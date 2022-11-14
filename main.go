@@ -21,7 +21,8 @@ func Routes(app *fiber.App) {
 	api.Post("/getAccountInfo", handlers.GetAccountInfoPostHandler)
 
 	// http://localhost:8080/revokeAccessToken?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722
-	api.Get("/revokeAccessToken", handlers.RevokeAccessToken)
+	api.Get("/revokeAccessToken", handlers.RevokeAccessTokenGetHandler)
+	api.Post("/revokeAccessToken", handlers.RevokeAccessTokenPostHandler)
 
 	// http://localhost:8080/createPage?access_token=d3b25feccb89e508a9114afb82aa421fe2a9712b963b387cc5ad71e58722&title=Sam%E5%8F%91%E9%A1%BA%E4%B8%B0ple+Page&author_name=Anonymous&content=[%7B%22tag%22:%22p%22,%22children%22:[%22Hello,+world!%22]%7D]&return_content=true
 	api.Get("/createPage", handlers.CreatePage)

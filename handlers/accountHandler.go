@@ -196,7 +196,7 @@ func GetAccountInfoPostHandler(c *fiber.Ctx) error {
 }
 
 // http://localhost:8080/revokeAccessToken?access_token=f32f947d6eafe80ca5ea7cd15140bea9214606c83487a520090cd1209e98171f
-func RevokeAccessToken(c *fiber.Ctx) error {
+func RevokeAccessTokenGetHandler(c *fiber.Ctx) error {
 	accessToken := c.Query("access_token")
 
 	if accessToken == "" {
@@ -207,6 +207,55 @@ func RevokeAccessToken(c *fiber.Ctx) error {
 	}
 
 	if data, err := database.EntClient.Account.Query().Where(account.AccessTokenEQ(accessToken)).Only(context.Background()); err == nil {
+		newAccessToken := utils.GenerateSecureToken(32)
+
+		tmp, err := data.Update().SetAccessToken(newAccessToken).SetAuthURL(fmt.Sprintf("http://localhost:8080/auth/%v", newAccessToken)).Save(context.Background())
+
+		if err != nil {
+			return c.Status(500).JSON(&model.Response{
+				Ok:    false,
+				Error: fmt.Sprintf("%v", err),
+			})
+		}
+
+		result := struct {
+			AccessToken string `json:"access_token"`
+			AuthURL     string `json:"auth_url"`
+		}{
+			AccessToken: tmp.AccessToken,
+			AuthURL:     tmp.AuthURL,
+		}
+
+		return c.JSON(&model.Response{
+			Ok:     true,
+			Result: result,
+		})
+	} else {
+		return c.Status(500).JSON(&model.Response{
+			Ok:    false,
+			Error: fmt.Sprintf("%v", err),
+		})
+	}
+}
+
+func RevokeAccessTokenPostHandler(c *fiber.Ctx) error {
+	payload := new(model.AccountPayload)
+
+	if err := c.BodyParser(payload); err != nil {
+		return err
+	}
+
+	// fields (Array of String, default = [“short_name”,“author_name”,“author_url”])
+	// List of account fields to return. Available fields: short_name, author_name, author_url, auth_url, page_count.
+
+	if payload.AccessToken == "" {
+		return c.JSON(&model.Response{
+			Ok:    false,
+			Error: "ACCESS_TOKEN_INVALID",
+		})
+	}
+
+	if data, err := database.EntClient.Account.Query().Where(account.AccessTokenEQ(payload.AccessToken)).Only(context.Background()); err == nil {
 		newAccessToken := utils.GenerateSecureToken(32)
 
 		tmp, err := data.Update().SetAccessToken(newAccessToken).SetAuthURL(fmt.Sprintf("http://localhost:8080/auth/%v", newAccessToken)).Save(context.Background())

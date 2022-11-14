@@ -25,7 +25,7 @@ func CreatePage(c *fiber.Ctx) error {
 	if accessToken == "" {
 		return c.JSON(&model.Response{
 			Ok:    false,
-			Error: "Please provide a valid access token",
+			Error: "ACCESS_TOKEN_INVALID",
 		})
 	}
 
@@ -151,7 +151,7 @@ func EditPage(c *fiber.Ctx) error {
 	if accessToken == "" {
 		return c.JSON(&model.Response{
 			Ok:    false,
-			Error: "Please provide a valid access token",
+			Error: "ACCESS_TOKEN_INVALID",
 		})
 	}
 
